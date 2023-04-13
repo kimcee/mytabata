@@ -1,0 +1,72 @@
+default:
+    controller: Tabata\Controller\MainController
+    method: index
+    params: { routine_id: int }
+privacy:
+    controller: Tabata\Controller\MainController
+    method: privacy
+terms:
+    controller: Tabata\Controller\MainController
+    method: terms
+contact:
+    controller: Tabata\Controller\MainController
+    method: contact
+create_new_exercise:
+    controller: Tabata\Controller\MainController
+    method: createNewExercise
+register:
+    controller: Tabata\Controller\MainController
+    method: register
+login:
+    controller: Tabata\Controller\MainController
+    method: login
+logout:
+    controller: Tabata\Controller\MainController
+    method: logout
+delete_account:
+    controller: Tabata\Controller\MainController
+    method: delete_account
+ajax_set_theme:
+    controller: Tabata\Controller\MainController
+    method: ajaxSetTheme
+    params: { theme: string }
+ajax_save_routine_order:
+    controller: Tabata\Controller\MainController
+    method: ajaxSaveRoutineOrder
+    params: { routine_id: int, items: array }
+ajax_edit_routine:
+    controller: Tabata\Controller\MainController
+    method: ajaxEditRoutine
+    params: { routine_id: int, name: string }
+ajax_delete_routine:
+    controller: Tabata\Controller\MainController
+    method: ajaxDeleteRoutine
+    params: { routine_id: int }
+ajax_delete_exercise:
+    controller: Tabata\Controller\MainController
+    method: ajaxDeleteExercise
+    params: { exercise_id: int }
+ajax_save_account:
+    controller: Tabata\Controller\MainController
+    method: ajaxSaveAccount
+    params: { name: string, email: string, password: string }
+ajax_change_exercise:
+    controller: Tabata\Controller\MainController
+    method: ajaxChangeExercise
+    params: { exercise_id: int, routine_id: int }
+ajax_edit_exercise:
+    controller: Tabata\Controller\MainController
+    method: ajaxEditExercise
+    params: { id: int, name: string, routine_id: int }
+ajax_heart_routine:
+    controller: Tabata\Controller\MainController
+    method: ajaxHeartRoutine
+    params: { routine_id: int, items: array, limit: int, set_length: int, set_break: int }
+ajax_unheart_routine:
+    controller: Tabata\Controller\MainController
+    method: ajaxUnHeartRoutine
+    params: { routine_id: int }
+account:
+    controller: Tabata\Controller\MainController
+    method: account
+    params: { routine_id: int }

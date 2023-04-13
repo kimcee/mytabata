@@ -1,0 +1,30 @@
+<h1>Terms and Conditions</h1>
+
+<p><span>Welcome to MyTABATA, a mobile application designed to help you achieve your fitness goals. By accessing or using the App, you agree to be bound by these Terms and Conditions (the "Agreement").</span></p>
+<h5>1. Use of the App</h5>
+<p><span>You may use the App only for lawful purposes and in accordance with this Agreement. You are responsible for ensuring that all information you provide to the App is true, accurate, and complete.</span></p>
+<h5>2. Accounts</h5>
+<p><span>To use certain features of the App, you may be required to create an account. You are responsible for maintaining the confidentiality of your account and password and for restricting access to your device. You agree to accept responsibility for all activities that occur under your account.</span></p>
+<h5>3. Payment and Subscriptions</h5>
+<p><span>Certain features of the App may require payment or subscription. By subscribing to any paid feature, you agree to pay all fees and charges associated with the subscription. You may cancel your subscription at any time, but no refunds will be issued.</span></p>
+<h5>4. Intellectual Property</h5>
+<p><span>The App and its entire contents, features, and functionality (including but not limited to all information, software, text, displays, images, video, and audio) are owned by MyTABATA or its licensors and are protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, sell, or lease any part of the App without the express written consent of MyTABATA.</span></p>
+<h5>5. Disclaimer of Warranties</h5>
+<p><span>The App is provided "as is" and "as available" without any warranties of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, and non-infringement. MyTABATA makes no warranty that the App will meet your requirements, be uninterrupted, or error-free.</span></p>
+<h5>6. Limitation of Liability</h5>
+<p><span>In no event shall MyTABATA be liable for any direct, indirect, incidental, special, or consequential damages arising out of or in connection with your use of the App, including but not limited to damages for loss of profits, goodwill, use, data, or other intangible losses.</span></p>
+<h5>7. Indemnification</h5>
+<p><span>You agree to indemnify and hold MyTABATA and its officers, directors, employees, and agents harmless from any claim or demand, including reasonable attorneys' fees, made by any third party due to or arising out of your use of the App or your violation of this Agreement.</span></p>
+<h5>8. Governing Law</h5>
+<p><span>This Agreement shall be governed by and construed in accordance with the laws of Florida, USA without regard to conflicts of law principles.</span></p>
+<h5>9. Arbitration</h5>
+<p><span>Any dispute arising out of or relating to this Agreement or your use of the App shall be resolved by binding arbitration in accordance with the rules of the American Arbitration Association.</span></p>
+<h5>10. Changes to the Agreement</h5>
+<p><span>We reserve the right to modify or revise this Agreement at any time. Your continued use of the App following any changes to this Agreement constitutes your acceptance of such changes.</span></p>
+<h5>11. Termination</h5>
+<p><span>We may terminate this Agreement and your access to the App at any time, with or without cause or notice.</span></p>
+<h5>Entire Agreement</h5>
+<p><span>This Agreement constitutes the entire agreement between you and MyTABATA regarding your use of the App, and supersedes all prior or contemporaneous communications, whether oral or written.</span></p>
+<p><span>If you have any questions or concerns about this Agreement, please contact us at support@mytabata.app.</span></p>
+<p><span><strong>Effective Date</strong></span></p>
+<p><span>This Agreement is effective as of April 10th, 2023.</span></p>
