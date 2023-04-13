@@ -1,6 +1,6 @@
 <div class="register-bg">
 
-    <img src="/Assets/app/splash/web-register.jpg" class="w-100 d-block d-sm-none" />
+    <img src="/Assets/app/splash/web-register.jpg?v=2" class="w-100 d-block d-sm-none" />
     <img src="/Assets/app/splash/web-register-wide.jpg" class="w-100 d-none d-sm-block" />
 
     <div class="row register-form-row">
