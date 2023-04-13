@@ -23,8 +23,8 @@
             width: 100%;
             top: 55px;
             left: 0;
-            padding-top: 25px;
-            min-height: 175px;
+            padding-top: 10px;
+            min-height: 150px;
             border-bottom: 1px solid #555;
             background: #0f1117;
         }
@@ -32,7 +32,8 @@
             background: #eee;
         }
         .top-spacer {
-            width: 100%; height: 165px;
+            width: 100%;
+            height: 130px;
         }
         .btn {
             letter-spacing: 2px;
@@ -42,6 +43,15 @@
         }
         .header-title {
             text-transform: none !important;
+        }
+        .view-routine {
+            cursor: pointer;
+        }
+        .account-heading {
+            background: #333 !important;
+        }
+        .theme-light .account-heading {
+            background: #ccc !important;
         }
         .action-btn {
             width: 65px; height: 65px;
@@ -108,10 +118,47 @@
         body.register .content {
             margin: 0;
         }
+        .list-group-workout-item {
+            font-size: 32px;
+        }
+        #segment-display {
+            font-size: 100px;
+            line-height: 80px;
+        }
+        .workout-item-active {
+            background-color: #8CC152 !important;
+        }
+        .workout-item-active .exercise-name {
+            color: #FFF !important;
+        }
+        .workout-item-pending {
+            /*bg-orange-dark*/
+            background-color: #E9573F !important;
+        }
+        .workout-item-pending .exercise-name {
+            color: #FFF !important;
+        }
+        .workout-item-finished {
+            /*bg-dark-dark*/
+            background-color: #434A54 !important;
+        }
+        .workout-item-finished .exercise-name {
+            color: #FFF !important;
+        }
+        .is-playing .w-action-btn {
+            display: none;
+        }
 
         @media screen and (max-width: 600px) {
+            #segment-display {
+                font-size: 60px;
+                line-height: 50px;
+            }
+            .list-group-workout-item {
+                font-size: 16px;
+            }
             .w-action-btn {
-                margin-left: 8px;
+                margin-left: 5px;
                 width: 24px;
                 height: 24px;
                 line-height: 24px !important;
@@ -139,10 +186,10 @@
                 font-size: 12px;
             }
             .timer-area {
-                min-height: 240px;
+                min-height: 190px;
             }
             .top-spacer {
-                height: 245px;
+                height: 170px;
             }
             .action-btn {
                 width: 40px;
@@ -261,9 +308,9 @@
 
 <script>
 
-    let activeItemClass = "bg-green-dark";
-    let pendingItemClass = "bg-orange-dark";
-    let finishedItemClass = "bg-dark-dark";
+    let activeItemClass  = "workout-item-active";
+    let pendingItemClass = "workout-item-pending";
+    let finishedItemClass = "workout-item-finished";
 
     let isPaused = false;
     let isTimerRunning = false;
@@ -369,7 +416,7 @@
                     // should say "workout"
                     playSound('begin');
 
-                    var offset = $(".top-spacer").height() + 55;
+                    var offset = $(".top-spacer").height() + 75;
 
                     $([document.documentElement, document.body]).animate({
                         scrollTop: $("#workout-" + workoutNumber).offset().top - offset
@@ -523,6 +570,7 @@
     $(".start-timer").click(function() {
         // stop user from initiating multiple times
         $(this).attr("disabled", true).addClass("show-disabled");
+        $('body').addClass("is-playing");
 
         // check if timer is paused
         if (isPaused) {
@@ -542,6 +590,7 @@
     });
 
     $(".stop-timer").click(function() {
+        $('body').removeClass("is-playing");
         isPaused = true;
         $(".start-timer").attr("disabled", false).removeClass("show-disabled");
     });

@@ -2,7 +2,7 @@
 
 <div class="accordion" id="accordion-1">
     <div class="mb-2">
-        <button class="btn accordion-btn no-effect color-theme bg-secondary fs-4 fw-normal" data-bs-toggle="collapse" data-bs-target="#collapse1">
+        <button class="btn accordion-btn no-effect color-theme rounded account-heading fs-4 fw-normal" data-bs-toggle="collapse" data-bs-target="#collapse1">
             <i class="fa fa-heart color-red-dark me-2"></i>
             Favorite Routines
             <i class="fa fa-chevron-down font-10 accordion-icon"></i>
@@ -44,7 +44,7 @@
         </div>
     </div>
     <div class="mb-2">
-        <button class="btn accordion-btn no-effect color-theme bg-secondary fs-4 fw-normal exercises-btn" data-bs-toggle="collapse" data-bs-target="#collapse2">
+        <button class="btn accordion-btn no-effect color-theme rounded account-heading fs-4 fw-normal exercises-btn" data-bs-toggle="collapse" data-bs-target="#collapse2">
             <i class="fa-solid fa-dumbbell color-yellow-dark me-2"></i>
             Your Exercises
             <i class="fa fa-chevron-down font-10 accordion-icon"></i>
@@ -84,12 +84,12 @@
                         <p class="fs-4" style="line-height: 32px;"><span>You have not created any exercises yet.</span></p>
                     </div>
                 <?php endif ?>
-                <p class="mb-3"><a href="/create_new_exercise" class="btn btn-primary fs-4">Create New Exercise</a></p>
+                <p class="mb-3"><a href="/create_new_exercise" class="btn btn-primary fs-5 rounded">Create New Exercise</a></p>
             </div>
         </div>
     </div>
     <div class="mb-2">
-        <button class="btn accordion-btn no-effect color-theme bg-secondary fs-4 fw-normal" data-bs-toggle="collapse" data-bs-target="#collapse3">
+        <button class="btn accordion-btn no-effect color-theme rounded account-heading fs-4 fw-normal" data-bs-toggle="collapse" data-bs-target="#collapse3">
             <i class="fa fa-user-circle color-blue-dark me-2"></i>
             User Info
             <i class="fa fa-chevron-down font-10 accordion-icon"></i>
@@ -123,7 +123,7 @@
                 </div>
 
                 <div class="pb-3">
-                    <input type="button" class="btn btn-primary save-account fs-4" value="Save" />
+                    <input type="button" class="btn btn-primary save-account fs-5 rounded" value="Save" />
                 </div>
 
             </div>
