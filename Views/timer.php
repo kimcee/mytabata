@@ -1,6 +1,6 @@
 <div class="timer-area">
 
-    <div class="row align-items-center mb-0 pb-0">
+    <div class="row g-0 align-items-center mb-0 pb-0">
         <div class="col-12 col-sm-6">
 
             <div>
