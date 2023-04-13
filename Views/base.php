@@ -148,8 +148,20 @@
         .is-playing .w-action-btn {
             display: none;
         }
+        .action-btns {
+            letter-spacing: 15px;
+        }
+        .is-playing .exercise-name {
+            width: 100% !important;
+        }
+        .is-playing .exercise-btns {
+            display: none !important;
+        }
 
         @media screen and (max-width: 600px) {
+            .action-btns {
+                letter-spacing: 8px;
+            }
             #segment-display {
                 font-size: 60px;
                 line-height: 50px;
