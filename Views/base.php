@@ -118,7 +118,7 @@
         body.register .content {
             margin: 0;
         }
-        .list-group-workout-item {
+        .list-group-workout-item, .list-group-workout-item input {
             font-size: 32px;
         }
         #segment-display {
@@ -166,7 +166,7 @@
                 font-size: 60px;
                 line-height: 50px;
             }
-            .list-group-workout-item {
+            .list-group-workout-item, .list-group-workout-item input {
                 font-size: 16px;
             }
             .w-action-btn {
