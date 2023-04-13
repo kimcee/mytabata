@@ -82,12 +82,14 @@
         <div class="list-group-workout-item text-uppercase workout-<?=$key?>" id="workout-<?=$key?>" style="letter-spacing: 0px;">
             <div class="row px-3 py-0 py-sm-3 mb-0 border-bottom">
                 <div class="col-7 col-md-9 text-start text-md-start exercise-name text-truncate">
-                    <span class="set-key-text"><?=$key?></span>.
+                    <span class="item-key-<?=$key?>">
+                        <span class="set-key-text"><?=$key?></span>.&nbsp;
+                    </span>
                     <span class="item-name item-name-<?=$key?>"><?=$workout['name']?></span>
                     <input
                         id="item-name-<?=$key?>"
                         type="text"
-                        class="d-none form-control fs-2 edit-workout-name"
+                        class="d-none form-control edit-workout-name mt-1"
                         value="<?=$workout['name']?>"
                         name="item-name"
                         data-id="<?=$workout['id']?>"

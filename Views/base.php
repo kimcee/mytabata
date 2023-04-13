@@ -119,7 +119,7 @@
             margin: 0;
         }
         .list-group-workout-item, .list-group-workout-item input {
-            font-size: 32px;
+            font-size: 32px !important;
         }
         #segment-display {
             font-size: 100px;
@@ -167,7 +167,7 @@
                 line-height: 50px;
             }
             .list-group-workout-item, .list-group-workout-item input {
-                font-size: 16px;
+                font-size: 16px !important;
             }
             .w-action-btn {
                 margin-left: 5px;
@@ -693,6 +693,7 @@
     $(".edit-item").click(function() {
         let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
         $(".item-name-" + key).addClass("d-none");
+        $(".item-key-" + key).addClass("d-none");
         $("#item-name-" + key).removeClass("d-none");
         $(this).addClass("d-none");
         $(".save-item-" + key).removeClass("d-none");
@@ -706,6 +707,7 @@
         let routine_id = $(".routine-id").val();
 
         $(".item-name-" + key).removeClass("d-none");
+        $(".item-key-" + key).removeClass("d-none");
         $("#item-name-" + key).addClass("d-none");
 
         $(".edit-item-" + key).removeClass("d-none");
