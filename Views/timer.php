@@ -9,7 +9,7 @@
                 <div class="workit text-center text-warning fw-bold d-none">Move</div>
             </div>
 
-            <h1 id="segment-display" class="text-center counter mb-0 pb-0 ">00:00</h1>
+            <h1 id="segment-display" class="text-center counter mb-0 pb-0">00:00</h1>
 
             <p class="text-center fw-bold mt-0 mb-0 pb-0">
                 Total Time: <span id="timer-display" class="text-center">00:00</span>

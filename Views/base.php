@@ -54,7 +54,8 @@
             background: #ccc !important;
         }
         .action-btn {
-            width: 65px; height: 65px;
+            width: 65px;
+            height: 65px;
             font-size: 30px;
             text-align; center;
             line-height: 68px;
@@ -156,6 +157,18 @@
         }
         .is-playing .exercise-btns {
             display: none !important;
+        }
+
+        @media screen and (max-width: 760px) {
+            .action-btns {
+                letter-spacing: 8px;
+            }
+            .action-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+                line-height: 47px;
+            }
         }
 
         @media screen and (max-width: 600px) {
