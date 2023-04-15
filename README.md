@@ -28,6 +28,8 @@ HIIT / Tabata Fitness Timer and Workout Generator
 
 ## Migrations
 
+_See https://book.cakephp.org/phinx/0/en/migrations.html_
+
 #### Create Migration
 `vendor/bin/phinx create MyNewMigration`
 
