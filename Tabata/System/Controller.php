@@ -3,6 +3,8 @@
 namespace Tabata\System;
 
 use Tabata\Entity\User;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 class Controller {
 
@@ -15,11 +17,8 @@ class Controller {
 
     public function view($page, $data = [])
     {
-        $CONTENT = '';
-
-        foreach ($data as $var => $val) {
-            $$var = $val;
-        }
+        $loader = new FilesystemLoader(Config::TEMPLATES_DIR);
+        $twig = new Environment($loader);
 
         if ($this->loggedInUser) {
             $user = $this->loggedInUser;
@@ -27,13 +26,12 @@ class Controller {
             $user = null;
         }
 
+        $twig->addGlobal('USER', $user);
+        $twig->addGlobal('SESSION', $_SESSION);
 
-        ob_start();
-            include("Views/{$page}.php");
-            $CONTENT = ob_get_contents();
-        ob_end_clean();
+        $data['user'] = $user;
 
-        include("Views/base.php");
+        echo $twig->render($page . '.html.twig', $data);
         exit;
     }
 

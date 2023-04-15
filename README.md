@@ -50,3 +50,14 @@ controller = Controller class location
 method = Public function inside Controller class
 params = array of function parameters
 ```
+
+## Twig Templates
+
+Twig is used as the templating engine. Two global variables are available in every template:
+```
+USER
+SESSION
+
+USER.email to get the user email
+SESSION.mytabata_user to get the user hash from sesison
+```

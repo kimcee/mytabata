@@ -4,6 +4,8 @@ namespace Tabata\System;
 
 class Config 
 {
+    // Template Directory
+    const TEMPLATES_DIR = 'Views';
     // debug
     const DEBUG     = true; // used in debug class and error_reporting (boolean)
     

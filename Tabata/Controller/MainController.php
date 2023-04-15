@@ -23,7 +23,7 @@ class MainController extends Controller
         parent::__construct($this->user);
     }
 
-    public function index($routineId = 0)
+    public function index(int $routineId = 0)
     {
         if (empty($this->user->id)) {
             return $this->register();
@@ -134,7 +134,9 @@ class MainController extends Controller
                 $favorite = Favorite::findBy(['routine' => $workoutRoutine->id, 'user' => $this->user->id]);
                 $isFavorite = !empty($favorite);
             }
-        } else {
+        }
+
+        if (empty($workoutItems)) {
             $workoutItems = $this->getRandomExercises($limit);
         }
 
@@ -151,6 +153,7 @@ class MainController extends Controller
             'timerInSeconds' => $timerInSeconds,
             'workoutItems' => $workoutItems,
             'routineId' => $routineId,
+            'showExercises' => false,
         ]);
     }
 
@@ -162,10 +165,11 @@ class MainController extends Controller
         $routines = Routine::findBy(['user' => $this->user->id]);
 
         $this->view("account", [
-            'isAboutPage' => true,
+            'hasExercises' => (count($exercises) > 0),
             'exercises' => $exercises,
+            'hasRoutines' => (count($routines) > 0),
             'routines' => $routines,
-            'user' => $this->user,
+            'showExercises' => !empty($_GET['exercises']),
         ]);
     }
 
@@ -210,7 +214,7 @@ class MainController extends Controller
         }
 
         $this->view('login', [
-            'error' => $error,
+            'hasError' => $error,
         ]);
     }
 
@@ -265,7 +269,8 @@ class MainController extends Controller
         }
 
         $this->view('register', [
-            'page_class' => 'register',
+            'pageClass' => 'register',
+            'hasError' => !empty($error),
             'error' => $error,
         ]);
     }

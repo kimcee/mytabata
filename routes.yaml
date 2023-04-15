@@ -25,7 +25,7 @@ logout:
     method: logout
 delete_account:
     controller: Tabata\Controller\MainController
-    method: delete_account
+    method: deleteAccount
 ajax_set_theme:
     controller: Tabata\Controller\MainController
     method: ajaxSetTheme

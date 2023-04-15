@@ -1,0 +1,641 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}: Timer{% endblock %}
+
+{% block body %}
+
+    <div class="timer-area">
+
+        <div class="row g-0 align-items-center mb-0 pb-0">
+            <div class="col-12 col-sm-6">
+                <div>
+                    <div class="timer-text text-center fw-bold">Timer</div>
+                    <div class="rest text-center fw-bold d-none">Rest</div>
+                    <div class="workit text-center text-warning fw-bold d-none">Move</div>
+                </div>
+
+                <h1 id="segment-display" class="text-center counter mb-0 pb-0">00:00</h1>
+
+                <p class="text-center fw-bold mt-0 mb-0 pb-0">
+                    Total Time: <span id="timer-display" class="text-center">00:00</span>
+                </p>
+            </div>
+            <div class="col-12 col-sm-6">
+                <div class="px-5 mt-3 text-center text-nowrap action-btns">
+                    <button class="rounded-circle bg-green-dark start-timer action-btn mb-3"><i class="fa-solid fa-play"></i></button>
+                    <button class="rounded-circle bg-orange-dark stop-timer action-btn mb-3"><i class="fa-solid fa-pause"></i></button>
+                    <button class="rounded-circle bg-pink-dark heart-workout action-btn mb-3"><i class="fa-{% if isFavorite %}solid{% else %}regular{% endif %} fa-heart"></i></button>
+                    <button class="rounded-circle bg-dark-dark refresh-workout action-btn mb-3"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button class="rounded-circle bg-gray-dark settings-workout action-btn mb-3"><i class="fa-solid fa-gear"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="change-settings" style="display: none;">
+            <form method="get" class="text-center p-5 pt-2 pb-4">
+                <input type="hidden" name="routine_id" class="routine-id" value="{{ routineId }}" />
+                <div class="row mb-0">
+                    <div class="col-12 mb-3">
+                        <select class="form-control rounded" name="limit" id="limit">
+                            {% for i in 2..100 %}
+                                <option
+                                    value="{{ i }}"
+                                    {% if i == limit %} selected{% endif %}
+                                >{{ i }} Sets</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <!-- <label class="fs-4">Time/Set<br /><span class="super-small">(seconds)</span></label> -->
+                        <select class="form-control rounded" name="length" id="length">
+                            {% for i in 10..241 %}
+                                <option
+                                    value="{{ i }}"
+                                    {% if i == workoutLength %} selected{% endif %}
+                                >{{ i }} Seconds / Set</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <!-- <label class="fs-4">Time/Break<br /><span class="super-small">(seconds)</span></label> -->
+                        <select class="form-control rounded" name="break" id="break">
+                            {% for i in 1..121 %}
+                                <option
+                                    value="{{ i }}"
+                                    {% if i == workoutBreak %} selected{% endif %}
+                            >{{ i }} Seconds / Break</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="pt-0">
+                    <div class="text-begin">
+                        <input type="submit" name="update" value="Update" class="btn bg-blue-dark text-uppercase fs-6 rounded w-100 update-workout" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="top-spacer">&nbsp;</div>
+
+    <div class="list-group list-custom-small" id="workoutItems">
+        {% for k, workout in workoutItems %}
+        {% set key = k + 1 %}
+        <div class="list-group-workout-item text-uppercase workout-{{ key }}" id="workout-{{ key }}" style="letter-spacing: 0px;">
+            <div class="row px-3 py-0 py-sm-3 mb-0 border-bottom">
+                <div class="col-7 col-md-9 text-start text-md-start exercise-name text-truncate">
+                        <span class="item-key-{{ key }}">
+                            <span class="set-key-text">{{ key }}</span>.&nbsp;
+                        </span>
+                    <span class="item-name item-name-{{ key }}">{{ workout['name'] }}</span>
+                    <input
+                            id="item-name-{{ key }}"
+                            type="text"
+                            class="d-none form-control edit-workout-name mt-1"
+                            value="{{ workout['name'] }}"
+                            name="item-name"
+                            data-id="{{ workout['id'] }}"
+                            data-key="{{ key }}"
+                    />
+                    <input type="hidden" class="item-id item-id-{{ key }}" value="{{ workout['id'] }}" />
+                    <input type="hidden" class="item-key item-key-{{ key }}" value="{{ key }}" />
+                </div>
+                <div class="col-5 col-md-3 text-end text-md-end fs-6 text-nowrap exercise-btns">
+                    <span><i class="w-action-btn fa-solid fa-arrows-rotate change-item" data-key="{{ key }}"></i></span>
+                    <span><i class="w-action-btn fa-regular fa-pen-to-square edit-item edit-item-{{ key }}" data-key="{{ key }}"></i></span>
+                    <span><i class="w-action-btn fa-solid fa-check color-green-light save-item save-item-{{ key }} d-none" data-key="{{ key }}"></i></span>
+                    <span><i class="w-action-btn fa-sharp fa-solid fa-up-down sortable"></i></span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
+
+{% block footer %}
+
+    <!-- Sounds -->
+    <audio id="beep3" autoload="auto"><source src="/Sounds/beep_1.mp3" type="audio/mpeg"></audio>
+    <audio id="beep2" autoload="auto"><source src="/Sounds/beep_1.mp3" type="audio/mpeg"></audio>
+    <audio id="beep1" autoload="auto"><source src="/Sounds/beep_1.mp3" type="audio/mpeg"></audio>
+    <audio id="begin" autoload="auto"><source src="/Sounds/beep_2.mp3" type="audio/mpeg"></audio>
+    <audio id="complete" autoload="auto"><source src="/Sounds/success.mp3" type="audio/mpeg"></audio>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+
+        let activeItemClass  = "workout-item-active";
+        let pendingItemClass = "workout-item-pending";
+        let finishedItemClass = "workout-item-finished";
+
+        let isPaused = false;
+        let isTimerRunning = false;
+        let onBreak = false;
+        let workoutNumber = 0;
+        let justStarted = false;
+
+        let duration = {{ timerInSeconds }};
+        let timer = duration, minutes, seconds;
+        let display = $("#timer-display");
+
+        let workoutDuration = {{ workoutLength }};
+        let breakDuration = {{ workoutBreak }};
+        let sTimer = breakDuration, sMinutes, sSeconds;
+        let sDisplay = $('#segment-display');
+
+        let sounds = {};
+
+        function stopTimer() {
+            isTimerRunning = false;
+        }
+
+        function startTimer() {
+            onBreak = true;
+            isTimerRunning = true;
+            justStarted = true;
+
+            var timerID = setInterval(function () {
+                if (!isPaused) {
+                    if (isTimerRunning) {
+                        updateTotalTimer();
+                        updateWorkoutTimer();
+                    } else {
+                        clearInterval(timerID);
+                    }
+                }
+            }, 1000);
+        }
+
+        function setTimersUI() {
+            beginMin = calcSecondsToMinutes(timer);
+            beginSec = calcRemainingSecondsInMinute(timer);
+            display.text(beginMin + ":" + beginSec);
+        }
+
+        function calcSecondsToMinutes(timeInSeconds) {
+            var nowMinutes = parseInt(timeInSeconds / 60, 10);
+            return nowMinutes < 10 ? "0" + nowMinutes : nowMinutes;
+        }
+
+        function calcRemainingSecondsInMinute(timeInSeconds) {
+            var nowSeconds = parseInt(timeInSeconds % 60, 10);
+            return nowSeconds < 10 ? "0" + nowSeconds : nowSeconds;
+        }
+
+        function updateTotalTimer() {
+            minutes = calcSecondsToMinutes(timer);
+            seconds = calcRemainingSecondsInMinute(timer);
+            display.text(minutes + ":" + seconds);
+
+            if (--timer < 0) {
+                timer = 0;
+
+                // timer has expired
+                isTimerRunning = false;
+            }
+        }
+
+        function updateWorkoutTimer() {
+            // update the UI
+            if (onBreak) {
+                sDisplay.addClass("text-secondary");
+
+                if (sTimer == breakDuration) {
+                    if (!justStarted) {
+                        // should say "rest"
+                        playSound('complete');
+                    }
+
+                    if (!$(".timer-text").hasClass("d-none")) {
+                        $(".timer-text").addClass("d-none");
+                    }
+
+                    $(".rest").removeClass("d-none");
+                    $(".workit").addClass("d-none");
+
+                    ++workoutNumber;
+                    workoutPrevNumber = workoutNumber - 1;
+
+                    $(".workout-" + workoutNumber)
+                        .addClass(pendingItemClass)
+                        .removeClass(activeItemClass);
+
+                    $(".list-group-workout-item." + activeItemClass)
+                        .removeClass(activeItemClass)
+                        .addClass(finishedItemClass);
+                }
+            } else {
+                sDisplay.removeClass("text-secondary");
+
+                if (sTimer == workoutDuration) {
+                    if (!justStarted) {
+                        // should say "workout"
+                        playSound('begin');
+
+                        var offset = $(".top-spacer").height() + 75;
+
+                        $([document.documentElement, document.body]).animate({
+                            scrollTop: $("#workout-" + workoutNumber).offset().top - offset
+                        }, 500);
+                    }
+
+                    $(".rest").addClass("d-none");
+                    $(".workit").removeClass("d-none");
+
+                    $(".workout-" + workoutNumber)
+                        .addClass(activeItemClass)
+                        .removeClass(pendingItemClass);
+                }
+            }
+
+            // time is now up and running
+            justStarted = false;
+
+            // countdown tones
+            if (sTimer < 4) {
+                if (sTimer == 3) {
+                    playSound('beep3');
+                } else if (sTimer == 2) {
+                    playSound('beep2');
+                } else if (sTimer == 1) {
+                    playSound('beep1');
+                }
+            }
+
+            sMinutes = calcSecondsToMinutes(sTimer);
+            sSeconds = calcRemainingSecondsInMinute(sTimer);
+            sDisplay.text(sMinutes + ":" + sSeconds);
+
+            if (--sTimer < 1) {
+                if (onBreak) {
+                    sTimer = workoutDuration;
+                    onBreak = false;
+                } else {
+                    if (timer > 0) {
+                        sTimer = breakDuration;
+                        onBreak = true;
+                    }
+                }
+            }
+        }
+
+        function playSound(soundID, muted) {
+            if (typeof muted == 'undefined') {
+                muted = false;
+            }
+
+            if (sounds[soundID]) {
+                var audio = sounds[soundID];
+            } else {
+                var audio = document.getElementById(soundID);
+                sounds[soundID] = audio;
+            }
+
+            if (muted) {
+                audio.muted = true;
+            } else {
+                if (audio.muted) {
+                    audio.muted = false;
+                }
+            }
+
+            audio.play();
+        }
+
+        function playAllSounds() {
+            // this is to give us access to
+            // auto play the remaining sounds
+            playSound('beep1', true);
+            playSound('beep2', true);
+            playSound('beep3', true);
+            playSound('complete', true);
+        }
+
+        if ($("#workoutItems").hasClass("list-group")) {
+            Sortable.create(workoutItems, {
+                handle: '.sortable',
+                animation: 250,
+                dragClass: 'is-sorting',
+                dragoverBubble: true,
+                onUpdate: function () {
+                    let routine_id = $(".routine-id").val();
+
+                    let workout_items = [];
+                    let new_key = 0;
+
+                    $(".list-group-workout-item").each(function () {
+                        let item_id = $(this).find(".item-id").val();
+                        let item_name = $(this).find("span.item-name").text();
+                        let current_key = $(this).find(".item-key").val();
+
+                        // update key
+                        ++new_key;
+                        $(this).find(".item-key").val(new_key);
+                        $(this).attr("id", "workout-" + new_key).removeClass("workout-" + current_key).addClass("workout-" + new_key);
+                        $(this).find(".set-key-text").text(new_key);
+                        $(this).find(".item-name").removeClass("item-name-" + current_key).addClass("item-name-" + new_key);
+                        $(this).find('input').attr("id", "item-name-" + new_key).attr("data-key", new_key);
+                        $(this).find('.change-item').attr("data-key", new_key);
+                        $(this).find('.edit-item').removeClass("edit-item-" + current_key).addClass("edit-item-" + new_key).attr("data-key", new_key);
+                        $(this).find('.save-item').removeClass("save-item-" + current_key).addClass("save-item-" + new_key).attr("data-key", new_key);
+
+                        workout_items.push({
+                            id: item_id,
+                            name: item_name
+                        });
+                    });
+
+                    if (!routine_id || routine_id < 1) {
+                        return false;
+                    }
+
+                    $.post({
+                        type: "POST",
+                        url: "/ajax/save_routine_order",
+                        data: {
+                            routine_id: routine_id,
+                            items: workout_items
+                        },
+                        success: function (result) {
+
+                        }
+                    });
+                }
+            });
+        }
+
+        $(".start-timer").click(function() {
+            // stop user from initiating multiple times
+            $(this).attr("disabled", true).addClass("show-disabled");
+            $('body').addClass("is-playing");
+
+            // check if timer is paused
+            if (isPaused) {
+                isPaused = false;
+                return false;
+            }
+
+            // hack to give permission to play sounds
+            playAllSounds();
+
+            // sound to notify user timer has started
+            // should say "get ready..."
+            playSound('begin');
+
+            // begin timer
+            startTimer();
+        });
+
+        $(".stop-timer").click(function() {
+            $('body').removeClass("is-playing");
+            isPaused = true;
+            $(".start-timer").attr("disabled", false).removeClass("show-disabled");
+        });
+
+        $(".change-item").click(function() {
+            let routine_id = $(".routine-id").val();
+            let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
+            let id = $(".item-id-" + key).val();
+
+            $(this).addClass("changing").prop("disabled", true);
+
+            $.post({
+                url: "/ajax/change_exercise",
+                data: {
+                    exercise_id: id,
+                    routine_id: routine_id
+                },
+                success: function (result) {
+                    $(".item-name-" + key).text(result.name);
+                    $(".item-id-" + key).val(result.id);
+                    $(".changing").prop("disabled", false).removeClass("changing");
+                }
+            });
+        });
+
+        $(".refresh-workout").click(function() {
+            window.open("/","_self");
+        });
+
+        $(".heart-workout").click(function() {
+            let routine_id = $(".routine-id").val();
+            let workout_items = [];
+
+            if (routine_id && $(this).find("i").hasClass("fa-solid")) {
+                $(".heart-workout").find("i").addClass("fa-regular").removeClass("fa-solid");
+                let limit = $("#limit").val();
+                let set_length = $("#length").val();
+                let set_break = $("#break").val();
+
+                // remove heart
+                $.post({
+                    type: "POST",
+                    url: "/ajax/unheart_routine",
+                    data: {
+                        routine_id: routine_id,
+                        limit: limit,
+                        set_length: set_length,
+                        set_break: set_break
+                    },
+                    success: function (result) {
+                        // update the ID
+                        $(".routine-id").val("");
+                    }
+                });
+            } else {
+
+                $(".heart-workout").find("i").removeClass("fa-regular").addClass("fa-solid");
+
+                $(".list-group-workout-item").each(function () {
+                    let item_id = $(this).find(".edit-workout-name").attr("data-id");
+                    let item_name = $(this).find("span.item-name").text();
+
+                    workout_items.push({
+                        id: item_id,
+                        name: item_name
+                    });
+                });
+
+                $.post({
+                    type: "POST",
+                    url: "/ajax/heart_routine",
+                    data: {
+                        routine_id: routine_id,
+                        items: workout_items
+                    },
+                    success: function (result) {
+                        // update the ID
+                        $(".routine-id").val(result.routine_id);
+                    }
+                });
+            }
+        });
+
+        $(".settings-workout").click(function() {
+            $(".change-settings").slideToggle(250);
+        });
+
+        $(".edit-item").click(function() {
+            let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
+            $(".item-name-" + key).addClass("d-none");
+            $(".item-key-" + key).addClass("d-none");
+            $("#item-name-" + key).removeClass("d-none");
+            $(this).addClass("d-none");
+            $(".save-item-" + key).removeClass("d-none");
+            $("#item-name-" + key).focus();
+        });
+
+        $(".edit-workout-name").blur(function() {
+            let name = $(this).val();
+            let key = $(this).parent("div").find(".item-key").val();
+            let id = $(this).parent("div").find(".item-id").val();
+            let routine_id = $(".routine-id").val();
+
+            $(".item-name-" + key).removeClass("d-none");
+            $(".item-key-" + key).removeClass("d-none");
+            $("#item-name-" + key).addClass("d-none");
+
+            $(".edit-item-" + key).removeClass("d-none");
+            $(".save-item-" + key).addClass("d-none");
+
+            $.post({
+                type: "POST",
+                url: "/ajax/edit_exercise",
+                data: {
+                    id: id,
+                    name: name,
+                    routine_id: routine_id
+                },
+                success: function (result) {
+                    $(".item-name-" + key).text(result.name);
+                    $("#item-name-" + key).val(result.name).attr("data-id", result.id);
+                    $(".item-id-" + key).val(result.id);
+                }
+            });
+        });
+
+        $(".edit-routine").click(function() {
+            let routine_id = $(this).attr("data-id");
+            $(".routine-name-" + routine_id).addClass("d-none");
+            $("#routine-name-" + routine_id).removeClass("d-none");
+            $(this).addClass("d-none");
+            $(".save-routine-" + routine_id).removeClass("d-none");
+            $("#routine-name-" + routine_id).focus();
+        });
+
+        $(".edit-routine-name").blur(function() {
+            let name = $(this).val();
+            let routine_id = $(this).attr("data-id");
+
+            $(".routine-name-" + routine_id).removeClass("d-none");
+            $("#routine-name-" + routine_id).addClass("d-none");
+
+            $(".edit-routine-" + routine_id).removeClass("d-none");
+            $(".save-routine-" + routine_id).addClass("d-none");
+
+            $.post({
+                type: "POST",
+                url: "/ajax/edit_routine",
+                data: {
+                    name: name,
+                    routine_id: routine_id
+                },
+                success: function (result) {
+                    $(".routine-name-" + routine_id).text(result.name);
+                    $("#routine-name-" + routine_id).val(result.name);
+                }
+            });
+        });
+
+        {% if showExercises %}
+        setTimeout(function() {
+            $(".exercises-btn").click();
+        }, 250);
+        {% endif %}
+
+        $(".save-account").click(function() {
+            let name = $(".user-name").val();
+            let email = $(".user-email").val();
+            let password = $(".user-password").val();
+
+            $.post({
+                type: "POST",
+                url: "/ajax/save_account",
+                data: {
+                    name: name,
+                    email: email,
+                    password: password
+                },
+                success: function (result) {
+                    // update the ID
+                    $(".account-success").removeClass("d-none");
+
+                    setTimeout(function() {
+                        $(".alert-success").addClass("d-none");
+                    }, 2000);
+                }
+            });
+        });
+
+        $(".view-routine").click(function() {
+            let routine_id = $(this).attr("data-id");
+            window.open("/?routine_id=" + routine_id, "_self");
+        });
+
+        $(".delete-custom-exercise").click(function() {
+            let exercise_id = $(this).attr('data-id');
+
+            if (confirm("Are you sure you want to delete this?")) {
+                $.post({
+                    type: "POST",
+                    url: "/ajax/delete_exercise",
+                    data: {
+                        exercise_id: exercise_id
+                    },
+                    success: function (result) {
+                        if (result.status === 'success') {
+                            $(".my-exercise-" + exercise_id).slideUp(250);
+                            setTimeout(function() {
+                                $(".my-exercise-" + exercise_id).remove();
+                            }, 250);
+                        } else {
+                            alert(result.message);
+                        }
+                    }
+                });
+            }
+        });
+
+        $(".delete-routine").click(function() {
+            let routine_id = $(this).attr('data-id');
+
+            if (confirm("Are you sure you want to delete this?")) {
+                $.post({
+                    type: "POST",
+                    url: "/ajax/delete_routine",
+                    data: {
+                        routine_id: routine_id
+                    },
+                    success: function (result) {
+                        if (result.status === 'success') {
+                            $(".my-routine-" + routine_id).slideUp(250);
+                            setTimeout(function() {
+                                $(".my-routine-" + routine_id).remove();
+                            }, 250);
+                        } else {
+                            alert(result.message);
+                        }
+                    }
+                });
+            }
+        });
+
+        setTimersUI();
+    </script>
+
+    {{ parent() }}
+{% endblock %}

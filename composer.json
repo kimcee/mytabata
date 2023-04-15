@@ -1,6 +1,7 @@
 {
     "require": {
         "symfony/yaml": "^6.2",
-        "robmorgan/phinx": "^0.13.4"
+        "robmorgan/phinx": "^0.13.4",
+        "twig/twig": "^3.5"
     }
 }
