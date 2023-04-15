@@ -14,7 +14,7 @@ spl_autoload_register(function ($class_name) {
 });
 
 // db connection
-$DB = new Tabata\System\DB();
+$DB = new App\System\DB();
 
 // run application
-Tabata\Begin::run();
+App\Begin::run();

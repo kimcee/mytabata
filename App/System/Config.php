@@ -1,11 +1,13 @@
 <?php
 
-namespace Tabata\System;
+namespace App\System;
 
 class Config 
 {
     // Template Directory
     const TEMPLATES_DIR = 'Views';
+    const ROUTES_FILE = '.routes.yaml';
+
     // debug
     const DEBUG     = true; // used in debug class and error_reporting (boolean)
     

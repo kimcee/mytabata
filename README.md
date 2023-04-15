@@ -40,7 +40,7 @@ _See https://book.cakephp.org/phinx/0/en/migrations.html_
 In routes.yaml use the following layout:
 ```yaml
 route_name:
-    controller: Tabata\Controller\MainController
+    controller: App\Controller\MainController
     method: routeMethodName
     params: { param1: string }
 ```

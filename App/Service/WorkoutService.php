@@ -1,6 +1,6 @@
 <?php
 
-namespace Tabata\Service;
+namespace App\Service;
 
 class WorkoutService {
 

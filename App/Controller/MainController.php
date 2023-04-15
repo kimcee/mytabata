@@ -1,15 +1,15 @@
 <?php
 
-namespace Tabata\Controller;
+namespace App\Controller;
 
-use Tabata\Entity\User;
-use Tabata\System\Controller;
-use Tabata\Service\WorkoutService;
-use Tabata\Service\UserService;
-use Tabata\Entity\Exercise;
-use Tabata\Entity\Routine;
-use Tabata\Entity\Favorite;
-use Tabata\Entity\RoutineExercise;
+use App\Entity\User;
+use App\System\Controller;
+use App\Service\WorkoutService;
+use App\Service\UserService;
+use App\Entity\Exercise;
+use App\Entity\Routine;
+use App\Entity\Favorite;
+use App\Entity\RoutineExercise;
 
 class MainController extends Controller
 {

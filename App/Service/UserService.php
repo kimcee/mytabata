@@ -1,9 +1,9 @@
 <?php
 
-namespace Tabata\Service;
+namespace App\Service;
 
-use Tabata\Entity\Entity;
-use Tabata\Entity\User;
+use App\Entity\Entity;
+use App\Entity\User;
 
 class UserService {
 

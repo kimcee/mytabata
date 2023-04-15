@@ -1,8 +1,8 @@
 <?php
 
-namespace Tabata\Entity;
+namespace App\Entity;
 
-use Tabata\System\Entity;
+use App\System\Entity;
 
 class RoutineExercise extends Entity {
     public static $table_name = "routine_exercises";

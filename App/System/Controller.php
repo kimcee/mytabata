@@ -1,8 +1,8 @@
 <?php
 
-namespace Tabata\System;
+namespace App\System;
 
-use Tabata\Entity\User;
+use App\Entity\User;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 

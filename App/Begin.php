@@ -1,7 +1,8 @@
 <?php
 
-namespace Tabata;
+namespace App;
 
+use App\System\Config;
 use Symfony\Component\Yaml\Yaml;
 
 class Begin {
@@ -12,7 +13,7 @@ class Begin {
     public static function run()
     {
         // Load the YAML file into a string
-        $yaml = file_get_contents('routes.yaml');
+        $yaml = file_get_contents(Config::ROUTES_FILE);
         $routes = Yaml::parse($yaml);
 
         $requestedRoute = self::getRequestedRoute();

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tabata\System;
+namespace App\System;
 
 use \PDO as PDO;
 

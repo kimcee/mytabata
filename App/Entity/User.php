@@ -1,9 +1,9 @@
 <?php
 
-namespace Tabata\Entity;
+namespace App\Entity;
 
-use Tabata\System\Entity;
-use Tabata\Service\UserService;
+use App\System\Entity;
+use App\Service\UserService;
 
 class User extends Entity {
     public static $table_name = "users";

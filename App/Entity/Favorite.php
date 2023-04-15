@@ -1,8 +1,8 @@
 <?php
 
-namespace Tabata\Entity;
+namespace App\Entity;
 
-use Tabata\System\Entity;
+use App\System\Entity;
 
 class Favorite extends Entity {
     public static $table_name = "favorites";
