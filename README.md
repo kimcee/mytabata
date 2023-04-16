@@ -26,6 +26,10 @@ HIIT / Tabata Fitness Timer and Workout Generator
 
 `vendor/bin/phinx migrate`
 
+## Deploy
+
+To deploy, push to the main branch and a github action will kick off the deploy process to the production environment.
+
 ## Migrations
 
 _See https://book.cakephp.org/phinx/0/en/migrations.html_
