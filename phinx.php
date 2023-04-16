@@ -1,8 +1,7 @@
 <?php
 
 require_once('vendor/autoload.php');
-require_once('.environment.php');
-require_once('helpers.php');
+require_once('App/.environment.php');
 
 return [
     'paths' => [
