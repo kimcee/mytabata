@@ -6,7 +6,7 @@ class Config
 {
     // Template Directory
     const TEMPLATES_DIR = 'Views';
-    const ROUTES_FILE = '.routes.yaml';
+    const ROUTES_FILE = 'App/.routes.yaml';
 
     // debug
     const DEBUG     = true; // used in debug class and error_reporting (boolean)

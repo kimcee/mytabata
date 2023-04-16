@@ -9,7 +9,7 @@ HIIT / Tabata Fitness Timer and Workout Generator
 
 #### Add DB credentials
 
-`vi .environment.php`
+`vi App/.environment.php`
 
 #### Include the following contents in `.environment.php`:
 
@@ -41,7 +41,7 @@ _See https://book.cakephp.org/phinx/0/en/migrations.html_
 `vendor/bin/phinx migrate`
 
 ## Routes
-In routes.yaml use the following layout:
+In `App/.routes.yaml` use the following layout:
 ```yaml
 route_name:
     controller: App\Controller\MainController
