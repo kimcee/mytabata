@@ -227,7 +227,7 @@
 
 </head>
 
-<body class="theme-{% block theme %}light{% endblock %} {% block page_class %}{% endblock %}"> <!-- detect-theme -->
+<body class="theme-{% if USER.id and USER.dark_mode %}dark{% else %}light{% endif %} {% block page_class %}{% endblock %}"> <!-- detect-theme -->
 
 <!--<div id="preloader"><div class="spinner-border color-highlight" role="status"></div></div>-->
 
@@ -237,7 +237,7 @@
         <a href="/" class="header-title go-home">MyTABATA</a>
         <!--        <a href="#" data-menu="menu-main" class="header-icon header-icon-1"><i class="fas fa-bars"></i></a>-->
         <a href="/" class="header-icon header-icon-1 go-home"><i class="fa-solid fa-dumbbell"></i></a>
-        {% if USER %}
+        {% if USER.id %}
             <a href="/account" class="header-icon header-icon-2"><i class="fa fa-user-circle font-14"></i></a>
             <a href="#" class="header-icon header-icon-3 show-on-theme-dark toggle-theme"><i class="fas fa-lightbulb color-yellow-dark"></i></a>
             <a href="#" class="header-icon header-icon-3 show-on-theme-light toggle-theme"><i class="fas fa-moon"></i></a>
@@ -350,15 +350,22 @@
 {% block scripts %}
     <script>
 
-        $(".edit-item").click(function() {
-            let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
-            $(".item-name-" + key).addClass("d-none");
-            $(".item-key-" + key).addClass("d-none");
-            $("#item-name-" + key).removeClass("d-none");
-            $(this).addClass("d-none");
-            $(".save-item-" + key).removeClass("d-none");
-            $("#item-name-" + key).focus();
-        });
+        {% if USER.id %}
+            $(".edit-item").click(function() {
+                let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
+                $(".item-name-" + key).addClass("d-none");
+                $(".item-key-" + key).addClass("d-none");
+                $("#item-name-" + key).removeClass("d-none");
+                $(this).addClass("d-none");
+                $(".save-item-" + key).removeClass("d-none");
+                $("#item-name-" + key).focus();
+            });
+        {% else %}
+            $(".edit-item").click(function() {
+                alert(createAccountMessage);
+                return false;
+            });
+        {% endif %}
 
         $(".edit-workout-name").blur(function() {
             let name = $(this).val();
@@ -387,92 +394,6 @@
                     $(".item-id-" + key).val(result.id);
                 }
             });
-        });
-
-        $(".edit-routine").click(function() {
-            let routine_id = $(this).attr("data-id");
-            $(".routine-name-" + routine_id).addClass("d-none");
-            $("#routine-name-" + routine_id).removeClass("d-none");
-            $(this).addClass("d-none");
-            $(".save-routine-" + routine_id).removeClass("d-none");
-            $("#routine-name-" + routine_id).focus();
-        });
-
-        $(".edit-routine-name").blur(function() {
-            let name = $(this).val();
-            let routine_id = $(this).attr("data-id");
-
-            $(".routine-name-" + routine_id).removeClass("d-none");
-            $("#routine-name-" + routine_id).addClass("d-none");
-
-            $(".edit-routine-" + routine_id).removeClass("d-none");
-            $(".save-routine-" + routine_id).addClass("d-none");
-
-            $.post({
-                type: "POST",
-                url: "/ajax/edit_routine",
-                data: {
-                    name: name,
-                    routine_id: routine_id
-                },
-                success: function (result) {
-                    $(".routine-name-" + routine_id).text(result.name);
-                    $("#routine-name-" + routine_id).val(result.name);
-                }
-            });
-        });
-
-        $(".view-routine").click(function() {
-            let routine_id = $(this).attr("data-id");
-            window.open("/?routine_id=" + routine_id, "_self");
-        });
-
-        $(".delete-custom-exercise").click(function() {
-            let exercise_id = $(this).attr('data-id');
-
-            if (confirm("Are you sure you want to delete this?")) {
-                $.post({
-                    type: "POST",
-                    url: "/ajax/delete_exercise",
-                    data: {
-                        exercise_id: exercise_id
-                    },
-                    success: function (result) {
-                        if (result.status === 'success') {
-                            $(".my-exercise-" + exercise_id).slideUp(250);
-                            setTimeout(function() {
-                                $(".my-exercise-" + exercise_id).remove();
-                            }, 250);
-                        } else {
-                            alert(result.message);
-                        }
-                    }
-                });
-            }
-        });
-
-        $(".delete-routine").click(function() {
-            let routine_id = $(this).attr('data-id');
-
-            if (confirm("Are you sure you want to delete this?")) {
-                $.post({
-                    type: "POST",
-                    url: "/ajax/delete_routine",
-                    data: {
-                        routine_id: routine_id
-                    },
-                    success: function (result) {
-                        if (result.status === 'success') {
-                            $(".my-routine-" + routine_id).slideUp(250);
-                            setTimeout(function() {
-                                $(".my-routine-" + routine_id).remove();
-                            }, 250);
-                        } else {
-                            alert(result.message);
-                        }
-                    }
-                });
-            }
         });
     </script>
 {% endblock %}
