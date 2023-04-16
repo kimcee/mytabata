@@ -319,8 +319,7 @@ class MainController extends Controller
 
     public function ajaxChangeExercise(int $exerciseId = 0, int $routineId = 0)
     {
-        $this->requiresAuthAjax();
-
+//        $this->requiresAuthAjax();
         $exercise = Exercise::getRandomItem($this->user->id);
 
         if (!empty($routineId)) {
