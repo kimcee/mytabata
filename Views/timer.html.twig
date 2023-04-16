@@ -484,19 +484,22 @@
             $(".change-settings").slideToggle(250);
         });
 
+        {% if USER %}
         $(".edit-item").click(function() {
-            {% if USER %}
-                let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
-                $(".item-name-" + key).addClass("d-none");
-                $(".item-key-" + key).addClass("d-none");
-                $("#item-name-" + key).removeClass("d-none");
-                $(this).addClass("d-none");
-                $(".save-item-" + key).removeClass("d-none");
-                $("#item-name-" + key).focus();
-            {% else %}
-                alert(createAccountMessage);
-            {% endif %}
+            let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
+            $(".item-name-" + key).addClass("d-none");
+            $(".item-key-" + key).addClass("d-none");
+            $("#item-name-" + key).removeClass("d-none");
+            $(this).addClass("d-none");
+            $(".save-item-" + key).removeClass("d-none");
+            $("#item-name-" + key).focus();
         });
+        {% else %}
+        $(".edit-item").click(function() {
+            alert(createAccountMessage);
+            return false;
+        });
+        {% endif %}
 
         $(".edit-workout-name").blur(function() {
             let name = $(this).val();
