@@ -128,6 +128,7 @@
 {% block scripts %}
     <script>
 
+        let createAccountMessage = "Create a free account to enjoy using this feature.";
         let activeItemClass  = "workout-item-active";
         let pendingItemClass = "workout-item-pending";
         let finishedItemClass = "workout-item-finished";
@@ -469,7 +470,11 @@
                     },
                     success: function (result) {
                         // update the ID
-                        $(".routine-id").val(result.routine_id);
+                        if (result.status == 'access denied') {
+                            alert(createAccountMessage);
+                        } else {
+                            $(".routine-id").val(result.routine_id);
+                        }
                     }
                 });
             }
@@ -480,13 +485,17 @@
         });
 
         $(".edit-item").click(function() {
-            let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
-            $(".item-name-" + key).addClass("d-none");
-            $(".item-key-" + key).addClass("d-none");
-            $("#item-name-" + key).removeClass("d-none");
-            $(this).addClass("d-none");
-            $(".save-item-" + key).removeClass("d-none");
-            $("#item-name-" + key).focus();
+            {% if USER %}
+                let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
+                $(".item-name-" + key).addClass("d-none");
+                $(".item-key-" + key).addClass("d-none");
+                $("#item-name-" + key).removeClass("d-none");
+                $(this).addClass("d-none");
+                $(".save-item-" + key).removeClass("d-none");
+                $("#item-name-" + key).focus();
+            {% else %}
+                alert(createAccountMessage);
+            {% endif %}
         });
 
         $(".edit-workout-name").blur(function() {

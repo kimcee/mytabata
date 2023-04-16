@@ -25,13 +25,13 @@ class MainController extends Controller
 
     public function index(int $routineId = 0)
     {
-        if (empty($this->user->id)) {
-            return $this->register();
-        }
+//        if (empty($this->user->id)) {
+//            return $this->register();
+//        }
 
-        $limit = $this->user->sets;
-        $workoutLength = $this->user->set_time;
-        $workoutBreak = $this->user->break_time;
+        $limit = $this->user->sets ?? 8;
+        $workoutLength = $this->user->set_time ?? 20;
+        $workoutBreak = $this->user->break_time ?? 10;
 
         if (!empty($_GET['limit'])) {
             $getLimit = (int) $_GET['limit'];
@@ -495,7 +495,7 @@ class MainController extends Controller
         $systemExercises = Exercise::getAllBy(['user' => 1]);
         $myExercises = [];
 
-        if ($this->user->id > 1) {
+        if (isset($this->user->id) && $this->user->id > 1) {
             $myExercises = Exercise::getAllBy(['user' => $this->user->id]);
         }
 

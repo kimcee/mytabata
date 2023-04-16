@@ -238,9 +238,14 @@
         <!--        <a href="#" data-menu="menu-main" class="header-icon header-icon-1"><i class="fas fa-bars"></i></a>-->
         <a href="/" class="header-icon header-icon-1 go-home"><i class="fa-solid fa-dumbbell"></i></a>
         {% if USER %}
-        <a href="/account" class="header-icon header-icon-2"><i class="fa fa-user-circle font-14"></i></a>
-        <a href="#" class="header-icon header-icon-3 show-on-theme-dark toggle-theme"><i class="fas fa-lightbulb color-yellow-dark"></i></a>
-        <a href="#" class="header-icon header-icon-3 show-on-theme-light toggle-theme"><i class="fas fa-moon"></i></a>
+            <a href="/account" class="header-icon header-icon-2"><i class="fa fa-user-circle font-14"></i></a>
+            <a href="#" class="header-icon header-icon-3 show-on-theme-dark toggle-theme"><i class="fas fa-lightbulb color-yellow-dark"></i></a>
+            <a href="#" class="header-icon header-icon-3 show-on-theme-light toggle-theme"><i class="fas fa-moon"></i></a>
+        {% else %}
+            <a href="/register" class="header-icon header-icon-3">Register</a>
+            <a href="/login" class="header-icon header-icon-4">Login</a>
+            <a href="#" class="header-icon header-icon-2 show-on-theme-dark toggle-theme"><i class="fas fa-lightbulb color-yellow-dark"></i></a>
+            <a href="#" class="header-icon header-icon-2 show-on-theme-light toggle-theme"><i class="fas fa-moon"></i></a>
         {% endif %}
     </div>
 
