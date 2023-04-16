@@ -18,4 +18,4 @@ jobs:
           
     - name: Deploy to server
       run: |
-        sshpass -p ${{ secrets.PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.SERVER }} 'cd public_html && composer install && composer update && git pull && vendor/bin/phinx migrate'
+        sshpass -p ${{ secrets.PASSWORD }} ssh -o HostKeyAlgorithms=+ssh-dss -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.SERVER }} -p 21098 'cd public_html && composer install && composer update && git pull && vendor/bin/phinx migrate'
