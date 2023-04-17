@@ -49,6 +49,7 @@ class User extends Entity {
         $this->sets = 8;
         $this->set_time = 20;
         $this->break_time = 10;
+        $this->rounds = 1;
         $this->hash = '';
 
         parent::insert();

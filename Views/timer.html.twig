@@ -10,14 +10,17 @@
             <div class="col-12 col-sm-6">
                 <div>
                     <div class="timer-text text-center fw-bold">Timer</div>
-                    <div class="rest text-center fw-bold d-none">Rest</div>
+                    <div class="round-break text-center fw-bold d-none">Take a Break</div>
+                    <div class="rest text-center fw-bold d-none">Prepare</div>
                     <div class="workit text-center text-warning fw-bold d-none">Move</div>
                 </div>
 
                 <h1 id="segment-display" class="text-center counter mb-0 pb-0">00:00</h1>
 
                 <p class="text-center fw-bold mt-0 mb-0 pb-0">
-                    Total Time: <span id="timer-display" class="text-center">00:00</span>
+                    Time/Round: <span id="timer-display" class="text-center">00:00</span>
+                    | Rounds Remaining: <span class="tabata-rounds">{{ workoutRounds }}</span>
+                    <input type="hidden" name="tabata-rounds-counter" class="tabata-rounds-counter" value="{{ workoutRounds }}" />
                 </p>
             </div>
             <div class="col-12 col-sm-6">
@@ -35,7 +38,8 @@
             <form method="get" class="text-center p-5 pt-2 pb-4">
                 <input type="hidden" name="routine_id" class="routine-id" value="{{ routineId }}" />
                 <div class="row mb-0">
-                    <div class="col-12 mb-3">
+                    <div class="col-12 col-sm-6 mb-3">
+                        <!-- <label class="fs-4">Time/Set<br /><span class="super-small">(seconds)</span></label> -->
                         <select class="form-control rounded" name="limit" id="limit">
                             {% for i in 2..100 %}
                                 <option
@@ -45,7 +49,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-12 mb-3">
+                    <div class="col-12 col-sm-6 mb-3">
                         <!-- <label class="fs-4">Time/Set<br /><span class="super-small">(seconds)</span></label> -->
                         <select class="form-control rounded" name="length" id="length">
                             {% for i in 10..241 %}
@@ -56,7 +60,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-12 mb-3">
+                    <div class="col-12 col-sm-6 mb-3">
                         <!-- <label class="fs-4">Time/Break<br /><span class="super-small">(seconds)</span></label> -->
                         <select class="form-control rounded" name="break" id="break">
                             {% for i in 1..121 %}
@@ -64,6 +68,17 @@
                                     value="{{ i }}"
                                     {% if i == workoutBreak %} selected{% endif %}
                             >{{ i }} Seconds / Break</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6 mb-3">
+                        <!-- <label class="fs-4">Time/Break<br /><span class="super-small">(seconds)</span></label> -->
+                        <select class="form-control rounded" name="rounds" id="rounds">
+                            {% for i in 1..10 %}
+                                <option
+                                        value="{{ i }}"
+                                        {% if i == workoutRounds %} selected{% endif %}
+                                >{{ i }} Tabata Round{% if i > 1 %}s{% endif %}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -136,12 +151,16 @@
         let isPaused = false;
         let isTimerRunning = false;
         let onBreak = false;
+        let onRestBetweenRounds = false;
+        let roundTimer = 10;
         let workoutNumber = 0;
         let justStarted = false;
 
         let duration = {{ timerInSeconds }};
         let timer = duration, minutes, seconds;
         let display = $("#timer-display");
+        let roundCounter = parseInt($(".tabata-rounds-counter").val());
+        let roundCounterDisplay = $(".tabata-rounds");
 
         let workoutDuration = {{ workoutLength }};
         let breakDuration = {{ workoutBreak }};
@@ -193,16 +212,54 @@
             display.text(minutes + ":" + seconds);
 
             if (--timer < 0) {
-                timer = 0;
+                // check for round
+                if (roundCounter > 0) {
+                    console.log('prepare for next round');
+                    console.log('remaining_rounds', roundCounter);
+                    roundCounter = roundCounter - 1;
+                    roundCounterDisplay.text(roundCounter.toString());
 
-                // timer has expired
-                isTimerRunning = false;
+                    if (roundCounter > 0) {
+                        onRestBetweenRounds = true;
+                    } else {
+                        workoutIsComplete();
+                    }
+                } else {
+                    workoutIsComplete();
+                }
             }
+        }
+
+        function workoutIsComplete() {
+            timer = 0;
+            isTimerRunning = false;
+
+            // should say, "congratulations, you're all  done!"
+            playSound('complete');
+
+            $(".timer-text").removeClass("d-none");
+            $(".rest, .workit, .round-break").addClass("d-none");
         }
 
         function updateWorkoutTimer() {
             // update the UI
-            if (onBreak) {
+            if (onRestBetweenRounds) {
+                if (sTimer === 0) {
+                    // play sound "relax, take a break, something like that
+                    playSound('complete');
+
+                    if (!$(".timer-text").hasClass("d-none")) {
+                        $(".timer-text").addClass("d-none");
+                    }
+
+                    $(".round-break").removeClass("d-none");
+                    $(".workit, .rest").addClass("d-none");
+
+                    workoutNumber = 0;
+                } else {
+                    $(".list-group-workout-item").removeClass(finishedItemClass).removeClass(activeItemClass);
+                }
+            } else if (onBreak) {
                 sDisplay.addClass("text-secondary");
 
                 if (sTimer == breakDuration) {
@@ -216,7 +273,7 @@
                     }
 
                     $(".rest").removeClass("d-none");
-                    $(".workit").addClass("d-none");
+                    $(".workit, .round-break").addClass("d-none");
 
                     ++workoutNumber;
                     workoutPrevNumber = workoutNumber - 1;
@@ -244,12 +301,18 @@
                         }, 500);
                     }
 
-                    $(".rest").addClass("d-none");
+                    $(".rest, .round-break").addClass("d-none");
                     $(".workit").removeClass("d-none");
 
                     $(".workout-" + workoutNumber)
                         .addClass(activeItemClass)
                         .removeClass(pendingItemClass);
+                }
+
+                if (sTimer === 0) {
+                    $(".workout-" + workoutNumber)
+                        .removeClass(activeItemClass)
+                        .addClass(finishedItemClass);
                 }
             }
 
@@ -267,12 +330,24 @@
                 }
             }
 
-            sMinutes = calcSecondsToMinutes(sTimer);
-            sSeconds = calcRemainingSecondsInMinute(sTimer);
-            sDisplay.text(sMinutes + ":" + sSeconds);
+            if (sTimer > -1) {
+                sMinutes = calcSecondsToMinutes(sTimer);
+                sSeconds = calcRemainingSecondsInMinute(sTimer);
+                sDisplay.text(sMinutes + ":" + sSeconds);
+            }
 
             if (--sTimer < 1) {
-                if (onBreak) {
+                if (onRestBetweenRounds) {
+                    if (timer < 0) {
+                        sTimer = roundTimer;
+                        timer = roundTimer;
+                    } else {
+                        timer = duration;
+                        sTimer = breakDuration;
+                        onRestBetweenRounds = false;
+                        onBreak = true;
+                    }
+                } else if (onBreak) {
                     sTimer = workoutDuration;
                     onBreak = false;
                 } else {
@@ -427,20 +502,15 @@
             let workout_items = [];
 
             if (routine_id && $(this).find("i").hasClass("fa-solid")) {
-                $(".heart-workout").find("i").addClass("fa-regular").removeClass("fa-solid");
-                let limit = $("#limit").val();
-                let set_length = $("#length").val();
-                let set_break = $("#break").val();
-
                 // remove heart
+                $(".heart-workout").find("i").addClass("fa-regular").removeClass("fa-solid");
+
+                // remove from db
                 $.post({
                     type: "POST",
                     url: "/ajax/unheart_routine",
                     data: {
-                        routine_id: routine_id,
-                        limit: limit,
-                        set_length: set_length,
-                        set_break: set_break
+                        routine_id: routine_id
                     },
                     success: function (result) {
                         // update the ID
@@ -448,8 +518,11 @@
                     }
                 });
             } else {
-
                 $(".heart-workout").find("i").removeClass("fa-regular").addClass("fa-solid");
+                let limit = $("#limit").val();
+                let set_length = $("#length").val();
+                let set_break = $("#break").val();
+                let rounds = $("#rounds").val();
 
                 $(".list-group-workout-item").each(function () {
                     let item_id = $(this).find(".edit-workout-name").attr("data-id");
@@ -466,7 +539,11 @@
                     url: "/ajax/heart_routine",
                     data: {
                         routine_id: routine_id,
-                        items: workout_items
+                        items: workout_items,
+                        limit: limit,
+                        set_length: set_length,
+                        set_break: set_break,
+                        rounds: rounds
                     },
                     success: function (result) {
                         // update the ID

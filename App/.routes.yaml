@@ -61,7 +61,7 @@ ajax_edit_exercise:
 ajax_heart_routine:
     controller: App\Controller\MainController
     method: ajaxHeartRoutine
-    params: { routine_id: int, items: array, limit: int, set_length: int, set_break: int }
+    params: { routine_id: int, items: array, limit: int, set_length: int, set_break: int, rounds: int }
 ajax_unheart_routine:
     controller: App\Controller\MainController
     method: ajaxUnHeartRoutine

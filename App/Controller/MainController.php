@@ -25,13 +25,10 @@ class MainController extends Controller
 
     public function index(int $routineId = 0)
     {
-//        if (empty($this->user->id)) {
-//            return $this->register();
-//        }
-
         $limit = $this->user->sets ?? 8;
         $workoutLength = $this->user->set_time ?? 20;
         $workoutBreak = $this->user->break_time ?? 10;
+        $workoutRounds = $this->user->rounds ?? 1;
 
         if (!empty($_GET['limit'])) {
             $getLimit = (int) $_GET['limit'];
@@ -54,6 +51,13 @@ class MainController extends Controller
             }
         }
 
+        if (!empty($_GET['rounds'])) {
+            $getRounds = (int) $_GET['rounds'];
+            if ($getRounds > 0) {
+                $workoutRounds = $getRounds;
+            }
+        }
+
         $isFavorite = false;
 
         if (!empty($routineId)) {
@@ -65,6 +69,7 @@ class MainController extends Controller
                 $limit = $workoutRoutine->sets;
                 $workoutLength = $workoutRoutine->sets_time;
                 $workoutBreak = $workoutRoutine->break_time;
+                $workoutRounds = $workoutRoutine->rounds;
                 $isDirty = false;
 
                 // check for new values from post
@@ -89,6 +94,14 @@ class MainController extends Controller
                     if ($getBreak > 0 && $getBreak !== $workoutBreak) {
                         $isDirty = true;
                         $workoutBreak = $workoutRoutine->break_time = $getBreak;
+                    }
+                }
+
+                if (!empty($_GET['rounds'])) {
+                    $getRounds = (int) $_GET['rounds'];
+                    if ($getRounds > 0 && $getRounds !== $workoutRounds) {
+                        $isDirty = true;
+                        $workoutRounds = $workoutRoutine->rounds = $getRounds;
                     }
                 }
 
@@ -152,6 +165,7 @@ class MainController extends Controller
             'isFavorite' => $isFavorite,
             'timerInSeconds' => $timerInSeconds,
             'workoutItems' => $workoutItems,
+            'workoutRounds' => $workoutRounds,
             'routineId' => $routineId,
             'showExercises' => false,
         ]);
@@ -375,7 +389,8 @@ class MainController extends Controller
         array $workoutItems = [],
         int $limit = 8,
         int $set_length = 20,
-        int $set_break = 10
+        int $set_break = 10,
+        int $rounds = 1
     ) {
         $this->requiresAuthAjax();
 
@@ -391,6 +406,7 @@ class MainController extends Controller
             $workoutRoutine->sets = $limit;
             $workoutRoutine->sets_time = $set_length;
             $workoutRoutine->break_time = $set_break;
+            $workoutRoutine->rounds = $rounds;
             $workoutRoutine->create();
         }
 
