@@ -152,7 +152,7 @@
         let isTimerRunning = false;
         let onBreak = false;
         let onRestBetweenRounds = false;
-        let roundTimer = 10;
+        let roundBreakTimer = 60;
         let workoutNumber = 0;
         let justStarted = false;
 
@@ -339,8 +339,8 @@
             if (--sTimer < 1) {
                 if (onRestBetweenRounds) {
                     if (timer < 0) {
-                        sTimer = roundTimer;
-                        timer = roundTimer;
+                        sTimer = roundBreakTimer;
+                        timer = roundBreakTimer;
                     } else {
                         timer = duration;
                         sTimer = breakDuration;
