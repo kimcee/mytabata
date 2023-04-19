@@ -45,7 +45,7 @@
                                 <option
                                     value="{{ i }}"
                                     {% if i == limit %} selected{% endif %}
-                                >{{ i }} Sets</option>
+                                >{{ i }} Exercises / Round</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -56,7 +56,7 @@
                                 <option
                                     value="{{ i }}"
                                     {% if i == workoutLength %} selected{% endif %}
-                                >{{ i }} Seconds / Set</option>
+                                >{{ i }} Seconds / Exercise</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -399,7 +399,7 @@
                 item_html += '          <span class="set-key-text">'+key+'</span>.&nbsp;</span>';
                 item_html += '          <span class="item-name item-name-'+key+'">'+item.name+'</span>';
                 item_html += '          <input id="item-name-'+key+'" type="text" class="d-none form-control edit-workout-name mt-1" value="'+item.name+'" name="item-name" data-id="'+item.id+'" data-key="'+key+'" />';
-                item_html += '          <input type="hidden" class="item-id item-id-'+key+'" value="'+item.name+'" />';
+                item_html += '          <input type="hidden" class="item-id item-id-'+key+'" value="'+item.id+'" />';
                 item_html += '          <input type="hidden" class="item-key item-key-'+key+'" value="'+key+'" />';
                 item_html += '      </div>';
                 item_html += '      <div class="col-5 col-md-3 text-end text-md-end fs-6 text-nowrap exercise-btns">';
@@ -495,7 +495,7 @@
             $(".start-timer").attr("disabled", false).removeClass("show-disabled");
         });
 
-        $(".change-item").click(function() {
+        $('body').on('.change-item', 'click', function() {
             let routine_id = $(".routine-id").val();
             let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
             let id = $(".item-id-" + key).val();
