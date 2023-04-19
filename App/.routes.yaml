@@ -54,6 +54,10 @@ ajax_change_exercise:
     controller: App\Controller\MainController
     method: ajaxChangeExercise
     params: { exercise_id: int, routine_id: int }
+ajax_update_routine_settings:
+    controller: App\Controller\MainController
+    method: ajaxUpdateRoutineSettings
+    params: { sets: int, sets_time: int, break_time: int, rounds: int, workout_items: array, routine_id: int }
 ajax_edit_exercise:
     controller: App\Controller\MainController
     method: ajaxEditExercise

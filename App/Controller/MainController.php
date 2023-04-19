@@ -29,35 +29,6 @@ class MainController extends Controller
         $workoutLength = $this->user->set_time ?? 20;
         $workoutBreak = $this->user->break_time ?? 10;
         $workoutRounds = $this->user->rounds ?? 1;
-
-        if (!empty($_GET['limit'])) {
-            $getLimit = (int) $_GET['limit'];
-            if ($getLimit > 0) {
-                $limit = $getLimit;
-            }
-        }
-
-        if (!empty($_GET['length'])) {
-            $getLength = (int) $_GET['length'];
-            if ($getLength > 0) {
-                $workoutLength = $getLength;
-            }
-        }
-
-        if (!empty($_GET['break'])) {
-            $getBreak = (int) $_GET['break'];
-            if ($getBreak > 0) {
-                $workoutBreak = $getBreak;
-            }
-        }
-
-        if (!empty($_GET['rounds'])) {
-            $getRounds = (int) $_GET['rounds'];
-            if ($getRounds > 0) {
-                $workoutRounds = $getRounds;
-            }
-        }
-
         $isFavorite = false;
 
         if (!empty($routineId)) {
@@ -70,44 +41,6 @@ class MainController extends Controller
                 $workoutLength = $workoutRoutine->sets_time;
                 $workoutBreak = $workoutRoutine->break_time;
                 $workoutRounds = $workoutRoutine->rounds;
-                $isDirty = false;
-
-                // check for new values from post
-                if (!empty($_GET['limit'])) {
-                    $getLimit = (int) $_GET['limit'];
-                    if ($getLimit > 0 && $getLimit !== $limit) {
-                        $isDirty = true;
-                        $limit = $workoutRoutine->sets = $getLimit;
-                    }
-                }
-
-                if (!empty($_GET['length'])) {
-                    $getLength = (int) $_GET['length'];
-                    if ($getLength > 0 && $getLength !== $workoutLength) {
-                        $isDirty = true;
-                        $workoutLength = $workoutRoutine->sets_time = $getLength;
-                    }
-                }
-
-                if (!empty($_GET['break'])) {
-                    $getBreak = (int) $_GET['break'];
-                    if ($getBreak > 0 && $getBreak !== $workoutBreak) {
-                        $isDirty = true;
-                        $workoutBreak = $workoutRoutine->break_time = $getBreak;
-                    }
-                }
-
-                if (!empty($_GET['rounds'])) {
-                    $getRounds = (int) $_GET['rounds'];
-                    if ($getRounds > 0 && $getRounds !== $workoutRounds) {
-                        $isDirty = true;
-                        $workoutRounds = $workoutRoutine->rounds = $getRounds;
-                    }
-                }
-
-                if ($isDirty) {
-                    $workoutRoutine->save();
-                }
 
                 // get exercises
                 $exercises = RoutineExercise::getExercises($workoutRoutine->id);
@@ -121,28 +54,6 @@ class MainController extends Controller
                     ];
                 }
 
-                // check if more exercises are requested than what was currently included
-                $currentTotalWorkoutItems = count($workoutItems);
-                if ($limit != $currentTotalWorkoutItems) {
-                    if ($limit > $currentTotalWorkoutItems) {
-                        // add some more
-                        $newWorkoutItems = $this->getRandomExercises($limit);
-                        for ($i = $currentTotalWorkoutItems; $i < $limit; ++$i) {
-                            $key = $i - 1;
-                            $workoutItems[] = $newWorkoutItems[$key];
-                        }
-                    } elseif ($limit < $currentTotalWorkoutItems) {
-                        // remove last ones
-                        for ($i = ($limit + 1); $i <= $currentTotalWorkoutItems; ++$i) {
-                            $key = $i - 1;
-                            unset($workoutItems[$key]);
-                        }
-                    }
-
-                    // update saved workout
-                    $workoutItems = $this->updateSavedRoutine($workoutRoutine->id, $workoutItems);
-                }
-
                 // check for favorite
                 $favorite = Favorite::findBy(['routine' => $workoutRoutine->id, 'user' => $this->user->id]);
                 $isFavorite = !empty($favorite);
@@ -153,9 +64,7 @@ class MainController extends Controller
             $workoutItems = $this->getRandomExercises($limit);
         }
 
-        $timerInSeconds = 0;
-        $timerInSeconds += $limit * $workoutLength;
-        $timerInSeconds += $limit * $workoutBreak;
+        $timerInSeconds = $this->calcTimer($limit, $workoutLength, $workoutBreak);
 
         $this->view("timer", [
             'isTimerPage' => true,
@@ -169,6 +78,15 @@ class MainController extends Controller
             'routineId' => $routineId,
             'showExercises' => false,
         ]);
+    }
+
+    private function calcTimer(int $limit = 0, int $workoutLength = 0, int $workoutBreak = 0): int
+    {
+        $timerInSeconds = 0;
+        $timerInSeconds += $limit * $workoutLength;
+        $timerInSeconds += $limit * $workoutBreak;
+
+        return $timerInSeconds;
     }
 
     public function account()
@@ -300,6 +218,88 @@ class MainController extends Controller
 
         header("Location: /account?exercises=true");
         exit;
+    }
+
+    public function ajaxUpdateRoutineSettings(
+        int $sets = 0,
+        int $setsTime = 0,
+        int $breakTime = 0,
+        int $rounds = 0,
+        array $currentWorkoutItems = [],
+        int $routineId = 0
+    ) {
+        $workoutRoutine = null;
+        $newWorkoutItems = [];
+
+        if (!empty($routineId)) {
+            $workoutRoutine = Routine::find($routineId);
+
+            if ($workoutRoutine) {
+                if ($workoutRoutine->user === $this->user->id) {
+                    if ($workoutRoutine->sets !== $sets) {
+                        // get exercises
+                        $exercises = RoutineExercise::getExercises($workoutRoutine->id);
+                        $workoutItems = [];
+
+                        // convert to array
+                        foreach ($exercises as $exercise) {
+                            $workoutItems[] = [
+                                'id' => $exercise['exercise_id'],
+                                'name' => $exercise['exercise_name'],
+                            ];
+                        }
+
+                        if ($sets > $workoutRoutine->sets) {
+                            // add some more
+                            $diff = $sets - $workoutRoutine->sets;
+                            $newWorkoutItems = $this->getRandomExercises($diff);
+                            $newCounter = 0;
+                            for ($i = $workoutRoutine->sets; $i < $sets; ++$i) {
+                                $workoutItems[] = $newWorkoutItems[$newCounter];
+                                ++$newCounter;
+                            }
+                        } elseif ($sets < $workoutRoutine->sets) {
+                            // remove last ones
+                            for ($i = ($sets + 1); $i <= $workoutRoutine->sets; ++$i) {
+                                $key = $i - 1;
+                                unset($workoutItems[$key]);
+                            }
+                        }
+
+                        // update saved workout
+                        $workoutItems = $this->updateSavedRoutine($workoutRoutine->id, $workoutItems);
+                    }
+
+                    $workoutRoutine->sets = $sets;
+                    $workoutRoutine->sets_time = $setsTime;
+                    $workoutRoutine->break_time = $breakTime;
+                    $workoutRoutine->rounds = $rounds;
+                    $workoutRoutine->save();
+                }
+            }
+        } else {
+            $totalCurrentWorkoutItems = count($currentWorkoutItems);
+            if ($sets > $totalCurrentWorkoutItems) {
+                // add some more
+                $diff = $sets - $totalCurrentWorkoutItems;
+                $newWorkoutItems = $this->getRandomExercises($diff);
+            }
+        }
+
+        $timerInSeconds = $this->calcTimer(
+            $sets,
+            $setsTime,
+            $breakTime
+        );
+
+        $this->ajax([
+            'sets' => $sets,
+            'sets_time' => $setsTime,
+            'break_time' => $breakTime,
+            'rounds' => $rounds,
+            'timer_in_seconds' => $timerInSeconds,
+            'new_items' => $newWorkoutItems,
+        ]);
     }
 
     public function ajaxSetTheme(string $theme = '')

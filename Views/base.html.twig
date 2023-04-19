@@ -351,7 +351,7 @@
     <script>
 
         {% if USER.id %}
-            $(".edit-item").click(function() {
+            $("body").on("click", ".edit-item", function() {
                 let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
                 $(".item-name-" + key).addClass("d-none");
                 $(".item-key-" + key).addClass("d-none");
@@ -361,13 +361,13 @@
                 $("#item-name-" + key).focus();
             });
         {% else %}
-            $(".edit-item").click(function() {
+            $("body").on("click", ".edit-item", function() {
                 alert(createAccountMessage);
                 return false;
             });
         {% endif %}
 
-        $(".edit-workout-name").blur(function() {
+        $("body").on("blur", ".edit-workout-name", function() {
             let name = $(this).val();
             let key = $(this).parent("div").find(".item-key").val();
             let id = $(this).parent("div").find(".item-id").val();
