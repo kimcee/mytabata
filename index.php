@@ -5,7 +5,6 @@ session_start();
 // environment
 require_once('vendor/autoload.php');
 require_once('App/.environment.php');
-require_once('App/Helpers.php');
 
 // autoloader
 spl_autoload_register(function ($class_name) {
