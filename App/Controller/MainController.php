@@ -489,7 +489,7 @@ class MainController extends Controller
         }
 
         // check if exercise is referenced in a routine
-        $routineExercise = RoutineExercise::findBy(['exercise' => $exerciseId]);
+        $routineExercise = RoutineExercise::findBy(['user' => $this->user->id, 'exercise' => $exerciseId]);
 
         if (count($routineExercise) > 0) {
             $this->ajax([
