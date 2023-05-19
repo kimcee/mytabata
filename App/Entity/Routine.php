@@ -23,4 +23,14 @@ class Routine extends Entity {
 
         parent::insert();
     }
+
+    public function delete()
+    {
+        $routineExercises = RoutineExercise::findBy(['routine' => $this->id]);
+        foreach ($routineExercises as $routineExercise) {
+            $routineExercise->delete();
+        }
+
+        parent::delete();
+    }
 }
