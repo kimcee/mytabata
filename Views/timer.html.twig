@@ -495,7 +495,7 @@
             $(".start-timer").attr("disabled", false).removeClass("show-disabled");
         });
 
-        $('body').on('.change-item', 'click', function() {
+        $("body").on('click', '.change-item', function() {
             let routine_id = $(".routine-id").val();
             let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
             let id = $(".item-id-" + key).val();
