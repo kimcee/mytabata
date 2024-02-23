@@ -6,6 +6,7 @@ use App\Entity\User;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
+#[\AllowDynamicProperties]
 class Controller {
 
     private $loggedInUser;

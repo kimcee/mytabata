@@ -2,6 +2,7 @@
 
 namespace App\System;
 
+#[\AllowDynamicProperties]
 class Routes {
 
     private $routes;

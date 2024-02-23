@@ -4,6 +4,7 @@ namespace App\System;
 
 use \PDO as PDO;
 
+#[\AllowDynamicProperties]
 class DB {
 
     /** 
