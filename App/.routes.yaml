@@ -26,6 +26,9 @@ logout:
 delete_account:
     controller: App\Controller\MainController
     method: deleteAccount
+ajax_list_exercises:
+    controller: App\Controller\MainController
+    method: ajaxListExercises
 ajax_set_theme:
     controller: App\Controller\MainController
     method: ajaxSetTheme

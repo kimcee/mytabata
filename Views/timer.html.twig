@@ -104,15 +104,16 @@
                             <span class="set-key-text">{{ key }}</span>.&nbsp;
                         </span>
                     <span class="item-name item-name-{{ key }}">{{ workout['name'] }}</span>
-                    <input
+                    <select
                             id="item-name-{{ key }}"
-                            type="text"
+                            {# type="text" #}
                             class="d-none form-control edit-workout-name mt-1"
-                            value="{{ workout['name'] }}"
+                            data-value="{{ workout['name'] }}"
                             name="item-name"
                             data-id="{{ workout['id'] }}"
                             data-key="{{ key }}"
-                    />
+                    >
+                    </select>
                     <input type="hidden" class="item-id item-id-{{ key }}" value="{{ workout['id'] }}" />
                     <input type="hidden" class="item-key item-key-{{ key }}" value="{{ key }}" />
                 </div>

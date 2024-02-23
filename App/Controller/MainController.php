@@ -220,6 +220,36 @@ class MainController extends Controller
         exit;
     }
 
+    public function ajaxListExercises()
+    {
+        $this->requiresAuth();
+
+        $customExercises = Exercise::getAllBy(['user' => $this->user->id]);
+        $defaultExercises = Exercise::getAllBy(['user' => 1]);
+        $exercises = array_merge($defaultExercises, $customExercises);
+
+        $exercisesResponse = [];
+
+        if (empty($exercises)) {
+            $this->ajax($exercisesResponse);
+            return;
+        }
+
+        foreach ($exercises as $e) {
+            // if $e->name is similar to $_REQUEST['q'] then include it
+            if (!empty($_REQUEST['q']) && strpos($e->name, $_REQUEST['q']) === false) {
+                continue;
+            }
+
+            $exercisesResponse[] = [
+                'id' => $e->id,
+                'text' => $e->name,
+            ];
+        }
+
+        $this->ajax($exercisesResponse);
+    }
+
     public function ajaxUpdateRoutineSettings(
         int $sets = 0,
         int $setsTime = 0,
@@ -358,15 +388,12 @@ class MainController extends Controller
         }
 
         $exercise = Exercise::find($id);
-        $name = $this->formatName($name);
-
-        if ($exercise->user == $this->user->id) {
-            $exercise->name = $name;
-            $exercise->save();
-        } else {
-            $exercise = new Exercise(Exercise::class);
+        
+        if (empty($exercise->id)) {
+            // create new execercise
+            $exercise = new Exercise();
+            $exercise->name = $this->formatName($name);;
             $exercise->user = $this->user->id;
-            $exercise->name = $name;
             $exercise->insert();
         }
 
