@@ -14,7 +14,7 @@
     <link rel="manifest" href="/Assets/_manifest.json?v=4" data-pwa-version="set_in_manifest_and_pwa_js">
     <link rel="apple-touch-icon" sizes="180x180" href="/Assets/app/icons/icon-192x192.png">
 
-    <link href="https://vereaze.vereaze.com/assets/vendors/select2/select2.min.css" rel="stylesheet" />
+    <link href="/Assets/styles/select2.min.css" rel="stylesheet" />
   
 
     <style>
@@ -252,6 +252,21 @@
         .select2-search__field {
             background: #000;
         }
+        .modal-backdrop {
+            z-index: 89 !important;
+        }
+        .theme-dark .modal-dialog .modal-content {
+            background: #333 !important;
+        }
+        .modal-header, .modal-body, .modal-footer {
+            border: 0 !important;
+        }
+        .modal-body .form-control {
+            font-size: 18px !important;
+        }
+        .modal-dialog {
+            margin-top: 150px;
+        }
     </style>
 
 </head>
@@ -354,7 +369,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script type="text/javascript" src="/Assets/scripts/bootstrap.min.js"></script>
 <script type="text/javascript" src="/Assets/scripts/custom.js"></script>
-<script src="https://vereaze.vereaze.com/assets/vendors/select2/select2.min.js"></script>
+<script src="/Assets/scripts/select2.min.js"></script>
 
 <script>
     $(".toggle-theme").click(function() {
@@ -389,13 +404,15 @@
                 $(this).addClass("d-none");
                 let defaultValue = $("#item-name-" + key).attr('data-value');
                 $(".save-item-" + key).removeClass("d-none");
+                $("#item-name-" + key).html('<option value="' + defaultValue +'">' + defaultValue + '</option>');
                 $("#item-name-" + key).focus();
                 $("#item-name-" + key).select2({
+                    tags: true,
+                    allowClear: true,
                     ajax: {
                         url: '/ajax/list/exercises', // Your API endpoint or server-side script URL
                         dataType: 'json',
                         processResults: function(data) {
-                            console.log(data);
                             return {
                                 results: data // Assuming the data is already in the correct format
                             };
@@ -403,18 +420,24 @@
                         cache: true // Optional, enables caching
                     }
                 });
-                $("#item-name-" + key).val(defaultValue).trigger('change');
+                $("#item-name-" + key).select2('open');
+
+                $(".select2-search__field[aria-controls='select2-item-name-1-results']").each(
+                    function(key, value) {
+                        value.focus();
+                        value.value = defaultValue;
+                    }
+                );
+
+                $("#item-name-" + key).trigger('change');
 
                 $("#item-name-" + key).on('select2:select', function (e) {
                     var selectedData = e.params.data;
                     console.log(selectedData);
-
                     if (selectedData && selectedData.id) {
                         saveNewWorkout(selectedData.text, key, selectedData.id);
                     }
                 });
-
-
             });
         {% else %}
             $("body").on("click", ".edit-item", function() {
@@ -427,6 +450,7 @@
             let routine_id = $(".routine-id").val();
 
             $("#item-name-" + key).select2('destroy');
+            $("#item-name-" + key).off('select2:select');
 
             $(".item-name-" + key).removeClass("d-none");
             $(".item-key-" + key).removeClass("d-none");

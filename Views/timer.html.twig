@@ -25,11 +25,15 @@
             </div>
             <div class="col-12 col-sm-6">
                 <div class="px-5 mt-3 text-center text-nowrap action-btns">
-                    <button class="rounded-circle bg-green-dark start-timer action-btn mb-3"><i class="fa-solid fa-play"></i></button>
-                    <button class="rounded-circle bg-orange-dark stop-timer action-btn mb-3"><i class="fa-solid fa-pause"></i></button>
-                    <button class="rounded-circle bg-pink-dark heart-workout action-btn mb-3"><i class="fa-{% if isFavorite %}solid{% else %}regular{% endif %} fa-heart"></i></button>
-                    <button class="rounded-circle bg-dark-dark refresh-workout action-btn mb-3"><i class="fa-solid fa-arrows-rotate"></i></button>
-                    <button class="rounded-circle bg-gray-dark settings-workout action-btn mb-3"><i class="fa-solid fa-gear"></i></button>
+                    <button class="rounded-circle bg-green-dark start-timer action-btn mb-3" title="Play"><i class="fa-solid fa-play"></i></button>
+                    <button class="rounded-circle bg-orange-dark stop-timer action-btn mb-3" title="Pause"><i class="fa-solid fa-pause"></i></button>
+                    <button class="rounded-circle bg-pink-dark heart-workout action-btn mb-3" title="Favorite"><i class="fa-{% if isFavorite %}solid{% else %}regular{% endif %} fa-heart"></i></button>
+                    <button class="rounded-circle bg-dark-dark refresh-workout action-btn mb-3" title="Refresh Workout"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    <button class="rounded-circle bg-gray-dark settings-workout action-btn mb-3" title="Settings"><i class="fa-solid fa-gear"></i></button>
+
+                    {% if isFavorite %}
+                    <button class="rounded-circle bg-yellow-dark share-workout action-btn mb-3" title="Share"><i class="fa-solid fa-share"></i></button>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -126,6 +130,27 @@
             </div>
         </div>
         {% endfor %}
+    </div>
+
+
+    <div class="modal fade" id="modalShareWorkout" tabindex="-1" aria-labelledby="modalShareWorkoutLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalShareWorkoutLabel">Share Workout Routine</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" value="https://mytabata.test/?routine_id={{ routineId }}" class="form-control text-dark" id="shareWorkoutUrl" />
+                <div id="hasCopied" style="display: none;" class="alert alert-success mt-3 mb-0" role="alert">
+                    COPIED =)
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+            </div>
+        </div>
     </div>
 
 {% endblock %}
@@ -467,6 +492,25 @@
                 }
             });
         }
+
+        $(".share-workout").click(function() {
+            // open bootstrap modal with url of workout
+            $("#shareWorkoutUrl").val(window.location.href);
+
+            $("#modalShareWorkout").modal("show");
+
+            // $('#shareWorkoutUrl').focus();
+            // $('#shareWorkoutUrl').select();
+        });
+
+        $('#shareWorkoutUrl').on('focus', function() {
+            $(this).select();
+            document.execCommand('copy');
+            $("#hasCopied").show();
+            setTimeout(function() {
+                $("#hasCopied").hide();
+            }, 2000);
+        });
 
         $(".start-timer").click(function() {
             // stop user from initiating multiple times

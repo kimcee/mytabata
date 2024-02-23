@@ -223,6 +223,11 @@
   color: #FFF !important;
 }
 
+.bg-yellow-dark {
+  background-color: #bab960 !important;
+  color: #FFF !important;
+}
+
 .border-green-light {
   border-color: #A0D468 !important;
 }

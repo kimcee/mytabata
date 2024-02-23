@@ -237,7 +237,7 @@ class MainController extends Controller
 
         foreach ($exercises as $e) {
             // if $e->name is similar to $_REQUEST['q'] then include it
-            if (!empty($_REQUEST['q']) && strpos($e->name, $_REQUEST['q']) === false) {
+            if (!empty($_REQUEST['q']) && strpos(strtolower($e->name), strtolower($_REQUEST['q'])) === false) {
                 continue;
             }
 
@@ -383,8 +383,8 @@ class MainController extends Controller
     {
         $this->requiresAuthAjax();
 
-        if (empty($id) || empty($name)) {
-            $this->ajax(['status' => 'error']);
+        if (empty($id) && empty($name)) {
+            $this->ajax(['status' => 'error because of no ID or name', 'id' => $id, 'name' => $name]);
         }
 
         $exercise = Exercise::find($id);
