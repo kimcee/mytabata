@@ -701,23 +701,23 @@
                 $(".item-name-" + key).addClass("d-none");
                 $(".item-key-" + key).addClass("d-none");
                 $("#item-name-" + key).removeClass("d-none");
-                $(this).addClass("d-none");
+                $(this).parents('.exercise-btns').find('.w-action-btn').addClass('d-none');
+                // $(this).addClass("d-none");
                 let defaultValue = $("#item-name-" + key).attr('data-value');
-                $(".save-item-" + key).removeClass("d-none");
+                // $(".save-item-" + key).removeClass("d-none");
                 $("#item-name-" + key).html('<option value="' + defaultValue +'">' + defaultValue + '</option>');
                 $("#item-name-" + key).focus();
                 $("#item-name-" + key).select2({
                     tags: true,
-                    allowClear: true,
                     ajax: {
-                        url: '/ajax/list/exercises', // Your API endpoint or server-side script URL
+                        url: '/ajax/list/exercises',
                         dataType: 'json',
                         processResults: function(data) {
                             return {
-                                results: data // Assuming the data is already in the correct format
+                                results: data
                             };
                         },
-                        cache: true // Optional, enables caching
+                        cache: true
                     }
                 });
                 $("#item-name-" + key).select2('open');
@@ -731,13 +731,18 @@
 
                 $("#item-name-" + key).trigger('change');
 
+                $("#item-name-" + key).on('select2:closing', function (e) {
+                    resetItem(key);
+                });
+
                 $("#item-name-" + key).on('select2:select', function (e) {
                     var selectedData = e.params.data;
-                    console.log(selectedData);
+                    console.log('select', selectedData);
                     if (selectedData && selectedData.id) {
                         saveNewWorkout(selectedData.text, key, selectedData.id);
                     }
                 });
+
             });
         {% else %}
             $("body").on("click", ".edit-item", function() {
@@ -750,15 +755,7 @@
             let routine_id = $(".routine-id").val();
             $("#item-name-" + key).attr('data-value', name);
 
-            $("#item-name-" + key).select2('destroy');
-            $("#item-name-" + key).off('select2:select');
-
-            $(".item-name-" + key).removeClass("d-none");
-            $(".item-key-" + key).removeClass("d-none");
-            $("#item-name-" + key).addClass("d-none");
-
-            $(".edit-item-" + key).removeClass("d-none");
-            $(".save-item-" + key).addClass("d-none");
+            resetItem(key);
 
             $.post({
                 type: "POST",
@@ -775,6 +772,28 @@
                     $(".item-id-" + key).val(result.id);
                 }
             });
+        }
+
+        function resetItem(key) {
+            setTimeout(function() {
+                var isSelect2Instantiated = $("#item-name-" + key).data('select2') !== undefined;
+
+                // Check the result
+                if (!isSelect2Instantiated) {
+                    return false;
+                }
+                
+                $("#item-name-" + key).select2('destroy');
+                $("#item-name-" + key).off('select2:select');
+                $("#item-name-" + key).off('select2:close');
+            }, 250);
+
+            $(".item-name-" + key).removeClass("d-none");
+            $(".item-key-" + key).removeClass("d-none");
+            $("#item-name-" + key).addClass("d-none");
+
+            $(".edit-item-" + key).parents('.exercise-btns').find('.w-action-btn').removeClass("d-none");
+            $(".save-item-" + key).addClass("d-none");
         }
 
         {# $("body").on("blur", ".edit-workout-name", function() {
