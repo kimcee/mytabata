@@ -64,7 +64,7 @@ ajax_update_routine_settings:
 ajax_edit_exercise:
     controller: App\Controller\MainController
     method: ajaxEditExercise
-    params: { id: int, name: string, routine_id: int }
+    params: { id: int, name: string, routine_id: int, save: bool }
 ajax_heart_routine:
     controller: App\Controller\MainController
     method: ajaxHeartRoutine

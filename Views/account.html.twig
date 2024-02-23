@@ -154,6 +154,46 @@
         }, 250);
         {% endif %}
 
+        $("body").on("click", ".edit-item", function() {
+            let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
+            $(".item-name-" + key).addClass("d-none");
+            $(".item-key-" + key).addClass("d-none");
+            $("#item-name-" + key).removeClass("d-none");
+            $(this).addClass("d-none");
+            $(".save-item-" + key).removeClass("d-none");
+            $("#item-name-" + key).focus();
+        });
+
+        $("body").on("blur", ".edit-workout-name", function() {
+            let name = $(this).val();
+            let key = $(this).parent("div").find(".item-key").val();
+            let id = $(this).parent("div").find(".item-id").val();
+            let routine_id = $(".routine-id").val();
+
+            $(".item-name-" + key).removeClass("d-none");
+            $(".item-key-" + key).removeClass("d-none");
+            $("#item-name-" + key).addClass("d-none");
+
+            $(".edit-item-" + key).removeClass("d-none");
+            $(".save-item-" + key).addClass("d-none");
+
+            $.post({
+                type: "POST",
+                url: "/ajax/edit_exercise",
+                data: {
+                    id: id,
+                    name: name,
+                    routine_id: routine_id,
+                    save: true,
+                },
+                success: function (result) {
+                    $(".item-name-" + key).text(result.name);
+                    $("#item-name-" + key).val(result.name).attr("data-id", result.id);
+                    $(".item-id-" + key).val(result.id);
+                }
+            });
+        });
+
         $(".save-account").click(function() {
             let name = $(".user-name").val();
             let email = $(".user-email").val();

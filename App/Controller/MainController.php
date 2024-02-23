@@ -379,7 +379,7 @@ class MainController extends Controller
         $this->ajax($exercise);
     }
 
-    public function ajaxEditExercise($id = 0, $name = '', int $routineId = 0)
+    public function ajaxEditExercise($id = 0, $name = '', int $routineId = 0, bool $save = false)
     {
         $this->requiresAuthAjax();
 
@@ -395,6 +395,13 @@ class MainController extends Controller
             $exercise->name = $this->formatName($name);;
             $exercise->user = $this->user->id;
             $exercise->insert();
+        } else {
+            if ($save) {
+                if ($exercise->user == $this->user->id) {
+                    $exercise->name = $this->formatName($name);
+                    $exercise->save();
+                }
+            }
         }
 
         if (!empty($routineId)) {
