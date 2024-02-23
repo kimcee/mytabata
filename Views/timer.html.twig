@@ -708,7 +708,7 @@
                 let defaultValue = $("#item-name-" + key).attr('data-value');
                 // $(".save-item-" + key).removeClass("d-none");
                 $("#item-name-" + key).html('<option value="' + defaultValue +'">' + defaultValue + '</option>');
-                $("#item-name-" + key).focus();
+                // $("#item-name-" + key).focus();
                 $("#item-name-" + key).select2({
                     tags: true,
                     ajax: {
@@ -724,7 +724,7 @@
                 });
                 $("#item-name-" + key).select2('open');
 
-                $(".select2-search__field[aria-controls='select2-item-name-1-results']").each(
+                $(".select2-search__field[aria-controls='select2-item-name-" + key + "-results']").each(
                     function(key, value) {
                         value.focus();
                         // value.value = defaultValue;
