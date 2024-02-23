@@ -31,9 +31,8 @@
                     <button class="rounded-circle bg-dark-dark refresh-workout action-btn mb-3" title="Refresh Workout"><i class="fa-solid fa-arrows-rotate"></i></button>
                     <button class="rounded-circle bg-gray-dark settings-workout action-btn mb-3" title="Settings"><i class="fa-solid fa-gear"></i></button>
 
-                    {% if isFavorite %}
-                    <button class="rounded-circle bg-yellow-dark share-workout action-btn mb-3" title="Share"><i class="fa-solid fa-share"></i></button>
-                    {% endif %}
+                    
+                    <button class="rounded-circle bg-yellow-dark share-workout action-btn mb-3{% if isFavorite %}{% else %} d-none{% endif %}" title="Share"><i class="fa-solid fa-share"></i></button>
                 </div>
             </div>
         </div>
@@ -125,7 +124,7 @@
                     <span><i class="w-action-btn fa-solid fa-arrows-rotate change-item" data-key="{{ key }}"></i></span>
                     <span><i class="w-action-btn fa-regular fa-pen-to-square edit-item edit-item-{{ key }}" data-key="{{ key }}"></i></span>
                     <span><i class="w-action-btn fa-solid fa-check color-green-light save-item save-item-{{ key }} d-none" data-key="{{ key }}"></i></span>
-                    <span><i class="w-action-btn fa-sharp fa-solid fa-up-down sortable"></i></span>
+                    {# <span><i class="w-action-btn fa-sharp fa-solid fa-up-down sortable"></i></span> #}
                 </div>
             </div>
         </div>
@@ -495,12 +494,7 @@
 
         $(".share-workout").click(function() {
             // open bootstrap modal with url of workout
-            $("#shareWorkoutUrl").val(window.location.href);
-
             $("#modalShareWorkout").modal("show");
-
-            // $('#shareWorkoutUrl').focus();
-            // $('#shareWorkoutUrl').select();
         });
 
         $('#shareWorkoutUrl').on('focus', function() {
@@ -556,6 +550,8 @@
                 success: function (result) {
                     $(".item-name-" + key).text(result.name);
                     $(".item-id-" + key).val(result.id);
+                    $("#item-name-" + key).val(result.name).attr("data-id", result.id).attr("data-value", result.name);
+                    $("#item-name-" + key).html('<option value="' + result.name +'">' + result.name + '</option>');
                     $(".changing").prop("disabled", false).removeClass("changing");
                 }
             });
@@ -573,6 +569,9 @@
                 // remove heart
                 $(".heart-workout").find("i").addClass("fa-regular").removeClass("fa-solid");
 
+                // hide share
+                $(".share-workout").addClass('d-none');
+
                 // remove from db
                 $.post({
                     type: "POST",
@@ -587,6 +586,7 @@
                 });
             } else {
                 $(".heart-workout").find("i").removeClass("fa-regular").addClass("fa-solid");
+                $(".share-workout").removeClass('d-none');
                 let limit = $("#limit").val();
                 let set_length = $("#length").val();
                 let set_break = $("#break").val();
@@ -620,6 +620,8 @@
                             alert(createAccountMessage);
                         } else {
                             $(".routine-id").val(result.routine_id);
+                            // update url of share workout
+                            $("#shareWorkoutUrl").val(window.location.href + "?routine_id=" + result.routine_id);
                         }
                     }
                 });
@@ -782,7 +784,7 @@
                 if (!isSelect2Instantiated) {
                     return false;
                 }
-                
+
                 $("#item-name-" + key).select2('destroy');
                 $("#item-name-" + key).off('select2:select');
                 $("#item-name-" + key).off('select2:close');

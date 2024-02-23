@@ -387,12 +387,13 @@ class MainController extends Controller
             $this->ajax(['status' => 'error because of no ID or name', 'id' => $id, 'name' => $name]);
         }
 
-        $exercise = Exercise::find($id);
+        $exercise = Exercise::findBy(['id' => $id, 'user' => $this->user->id], 1);
+        $name = $this->formatName($name);
         
         if (empty($exercise->id)) {
             // create new execercise
             $exercise = new Exercise();
-            $exercise->name = $this->formatName($name);;
+            $exercise->name = $name;
             $exercise->user = $this->user->id;
             $exercise->insert();
         } else {
