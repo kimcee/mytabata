@@ -66,7 +66,7 @@
                     <div class="col-12 col-sm-6 mb-3">
                         <!-- <label class="fs-4">Time/Break<br /><span class="super-small">(seconds)</span></label> -->
                         <select class="form-control rounded setting" name="break" id="break">
-                            {% for i in 1..121 %}
+                            {% for i in 5..121 %}
                                 <option
                                     value="{{ i }}"
                                     {% if i == workoutBreak %} selected{% endif %}
@@ -157,12 +157,14 @@
 {% block footer %}
 
     <!-- Sounds -->
-    <audio id="beep3" autoload="auto"><source src="/Assets/sounds/beep_1.mp3" type="audio/mpeg"></audio>
-    <audio id="beep2" autoload="auto"><source src="/Assets/sounds/beep_1.mp3" type="audio/mpeg"></audio>
-    <audio id="beep1" autoload="auto"><source src="/Assets/sounds/beep_1.mp3" type="audio/mpeg"></audio>
+    {# <audio id="beep3" autoload="auto"><source src="/Assets/sounds/beep_1.mp3" type="audio/mpeg"></audio> #}
+    {# <audio id="beep2" autoload="auto"><source src="/Assets/sounds/beep_1.mp3" type="audio/mpeg"></audio> #}
+    {# <audio id="beep1" autoload="auto"><source src="/Assets/sounds/beep_1.mp3" type="audio/mpeg"></audio> #}
     {# <audio id="begin" autoload="auto"><source src="/Assets/sounds/beep_2.mp3" type="audio/mpeg"></audio> #}
+    <audio id="reset" autoload="auto"><source src="/Assets/sounds/reset.mp3" type="audio/mpeg"></audio>
     <audio id="begin" autoload="auto"><source src="/Assets/sounds/begin.mp3" type="audio/mpeg"></audio>
     <audio id="countdown" autoload="auto"><source src="/Assets/sounds/countdown.mp3" type="audio/mpeg"></audio>
+    <audio id="countdown_to_rest" autoload="auto"><source src="/Assets/sounds/countdown_to_rest_1.mp3" type="audio/mpeg"></audio>
     <audio id="complete" autoload="auto"><source src="/Assets/sounds/complete.mp3" type="audio/mpeg"></audio>
     <audio id="success" autoload="auto"><source src="/Assets/sounds/success.mp3" type="audio/mpeg"></audio>
 
@@ -176,25 +178,32 @@
         let pendingItemClass = "workout-item-pending";
         let finishedItemClass = "workout-item-finished";
 
+        let resetTimerCountdown = 0;
         let isPaused = false;
         let isTimerRunning = false;
         let onBreak = false;
         let onRestBetweenRounds = false;
         let roundResetting = false;
-        let roundBreakTimer = 60;
+        let roundBreakTimer = 5;
         let workoutNumber = 0;
+        let resetWorkoutNumber = 0;
         let justStarted = false;
 
-        let duration = {{ timerInSeconds }};
+        let defaultDuration = {{ timerInSeconds }};
+        let duration = defaultDuration;
         let timer = duration, minutes, seconds;
         let display = $("#timer-display");
         let roundCounter = parseInt($(".tabata-rounds-counter").val());
         let roundCounterDisplay = $(".tabata-rounds");
 
-        let workoutDuration = {{ workoutLength }};
-        let breakDuration = {{ workoutBreak }};
+        let defaultWorkoutDuration = {{ workoutLength }};
+        let workoutDuration = defaultWorkoutDuration;
+        let defaultBreakDuration = {{ workoutBreak }};
+        let breakDuration = defaultBreakDuration;
         let sTimer = breakDuration, sMinutes, sSeconds;
         let sDisplay = $('#segment-display');
+
+        let defaultWorkoutRounds = {{ workoutRounds }};
 
         let sounds = {};
 
@@ -213,6 +222,7 @@
                         updateTotalTimer();
                         updateWorkoutTimer();
                     } else {
+                        console.log('clear_timer', timerID);
                         clearInterval(timerID);
                     }
                 }
@@ -263,15 +273,105 @@
         }
 
         function workoutIsComplete() {
+            playSound('success');
+            resetWorkout();
+        }
+
+        function resetWorkout() {
             timer = 0;
             isTimerRunning = false;
+            isPaused = false;
 
-            // should say, "congratulations, you're all  done!"
-            console.log('play sound "congratulations, you\'re all done!"');
-            playSound('success');
+            setTimeout(function() {
+                playSound('reset');
+                duration = defaultDuration;
+                workoutDuration = defaultWorkoutDuration;
+                breakDuration = defaultBreakDuration;
+                workoutNumber = 0;
 
-            $(".timer-text").removeClass("d-none");
-            $(".rest, .workit, .round-break").addClass("d-none");
+                timer = duration, minutes, seconds;
+                sTimer = breakDuration, sMinutes, sSeconds;
+
+                $(".tabata-rounds").text({{ workoutRounds }});
+                $(".tabata-rounds-counter").val({{ workoutRounds }});
+
+                $(".start-timer").removeClass("show-disabled").prop('disabled', false);
+                $(".timer-text").removeClass("d-none");
+                $(".rest, .workit, .round-break").addClass("d-none");
+                $('body').removeClass("is-playing");
+
+                resetTimerCountdown = 10;
+                resetItems();
+                resetTimersUI();
+            }, 3000);
+        }
+
+        function resetTimersUI() {
+
+            let time = '0';
+            
+            switch (resetTimerCountdown) {
+                case 10:
+                    time = '12:59';
+                    break;
+                case 9:
+                    time = '31:23';
+                    break;
+                case 8:
+                    time = '04:07';
+                    break;
+                case 7:
+                    time = '54:97';
+                    break;
+                case 6:
+                    time = '23:17';
+                    break;
+                case 5:
+                    time = '45:26';
+                    break;
+                case 4:
+                    time = '71:82';
+                    break;
+                case 3:
+                    time = '71:82';
+                    break;
+                case 2:
+                    time = '71:82';
+                    break;
+                case 1:
+                    time = '71:82';
+                    break;
+            }
+
+            --resetTimerCountdown;
+
+            if (resetTimerCountdown > 0) {
+                display.text(time);
+
+                setTimeout(function() {
+                    resetTimersUI();
+                }, 40);
+
+                return;
+            }
+
+            setTimersUI();
+        }
+
+        function resetItems() {
+            ++resetWorkoutNumber;
+
+            if ($(".workout-" + resetWorkoutNumber).hasClass(finishedItemClass)) {
+                $(".workout-" + resetWorkoutNumber).removeClass(finishedItemClass);
+
+                setTimeout(function() {
+                    resetItems();
+                }, 100);
+
+                return;
+            }
+            
+            resetWorkoutNumber = 0;
         }
 
         function updateWorkoutTimer() {
@@ -291,6 +391,7 @@
 
                     workoutNumber = 0;
                 } else {
+                    console.log('is this ever called?');                
                     $(".list-group-workout-item").removeClass(finishedItemClass).removeClass(activeItemClass);
                 }
             } else if (onBreak) {
@@ -362,10 +463,14 @@
             if (!onRestBetweenRounds) {
                 if (sTimer < 4) {
                     if (sTimer == 3) {
-                        playSound('countdown'); 
-                    } else if (sTimer == 2) {
+                        if (onBreak || roundResetting) {
+                            playSound('countdown');
+                        } else {
+                            playSound('countdown_to_rest');
+                        }
+                    // } else if (sTimer == 2) {
                         // playSound('beep2');
-                    } else if (sTimer == 1) {
+                    // } else if (sTimer == 1) {
                         // playSound('beep1');
                     }
                 }
@@ -429,10 +534,12 @@
             // this is to give us access to
             // auto play the remaining sounds
             // playSound('countdown', true);
+            // playSound('countdown_to_rest', true);
             // playSound('beep1', true);
             // playSound('beep2', true);
             // playSound('beep3', true);
             // playSound('complete', true);
+            playSound('reset', true);
             playSound('success', true);
         }
 
