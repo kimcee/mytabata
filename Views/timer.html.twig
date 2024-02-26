@@ -157,10 +157,6 @@
 {% block footer %}
 
     <!-- Sounds -->
-    {# <audio id="beep3" autoload="auto"><source src="/Assets/sounds/beep_1.mp3" type="audio/mpeg"></audio> #}
-    {# <audio id="beep2" autoload="auto"><source src="/Assets/sounds/beep_1.mp3" type="audio/mpeg"></audio> #}
-    {# <audio id="beep1" autoload="auto"><source src="/Assets/sounds/beep_1.mp3" type="audio/mpeg"></audio> #}
-    {# <audio id="begin" autoload="auto"><source src="/Assets/sounds/beep_2.mp3" type="audio/mpeg"></audio> #}
     <audio id="reset" autoload="auto"><source src="/Assets/sounds/reset.mp3" type="audio/mpeg"></audio>
     <audio id="begin" autoload="auto"><source src="/Assets/sounds/begin.mp3" type="audio/mpeg"></audio>
     <audio id="countdown" autoload="auto"><source src="/Assets/sounds/countdown.mp3" type="audio/mpeg"></audio>
@@ -178,13 +174,10 @@
         let pendingItemClass = "workout-item-pending";
         let finishedItemClass = "workout-item-finished";
 
+        let preWorkoutTimer = 10;
         let resetTimerCountdown = 0;
         let isPaused = false;
-        let isTimerRunning = false;
-        let onBreak = false;
-        let onRestBetweenRounds = false;
-        let roundResetting = false;
-        let roundBreakTimer = 5;
+        let roundBreakTimer = 60;
         let workoutNumber = 0;
         let resetWorkoutNumber = 0;
         let justStarted = false;
@@ -204,29 +197,223 @@
         let sDisplay = $('#segment-display');
 
         let defaultWorkoutRounds = {{ workoutRounds }};
+        let isExercising = false;
+        let isResting = false;
 
         let sounds = {};
 
-        function stopTimer() {
-            isTimerRunning = false;
-        }
+        // Start Tabata Round
+        function startRound() {
+            isExercising = true;
+            isResting = false;
+            sTimer = workoutDuration;
 
-        function startTimer() {
-            onBreak = true;
-            isTimerRunning = true;
-            justStarted = true;
-
-            var timerID = setInterval(function () {
+            updateWorkoutTimer();
+            updateTotalTimer();
+            
+            var roundTimerID = setInterval(function () {
                 if (!isPaused) {
-                    if (isTimerRunning) {
-                        updateTotalTimer();
+                    --sTimer;
+                    --timer;
+
+                    if (timer < -1) {
+                        alert('Something went wrong, please reload and try again.');
+                        clearInterval(roundTimerID);
+                        return false;
+                    }
+                    
+                    updateTotalTimer();
+
+                    if (isExercising) {
                         updateWorkoutTimer();
                     } else {
-                        console.log('clear_timer', timerID);
-                        clearInterval(timerID);
+                        updateRestTimer();
+                    }
+
+                    // when round ends
+                    if (timer < 1) {
+                        clearInterval(roundTimerID);
+                        checkForNextRound();
+                        
+                        return false;
                     }
                 }
             }, 1000);
+        }
+
+        // Check for another round
+        function checkForNextRound() {
+            roundCounter--;
+            if (roundCounter > 0) {
+                roundCounterDisplay.text(roundCounter.toString());
+                startRountBreak();
+            } else {
+                workoutIsComplete();
+            }
+        }
+
+        // Start the big break between rounds
+        function startRountBreak() {
+            // reset all items so they look like they did when ths round first started
+            duration = defaultDuration;
+            workoutDuration = defaultWorkoutDuration;
+            breakDuration = defaultBreakDuration;
+            workoutNumber = 0;
+
+            // reset timer
+            timer = duration, minutes, seconds;
+            sTimer = breakDuration, sMinutes, sSeconds;
+            setTimersUI();
+
+            $(".list-group-workout-item").removeClass(finishedItemClass).removeClass(activeItemClass);
+            $(".rest").removeClass("d-none");
+            $(".timer-text, .workit, .round-break").addClass("d-none");
+
+            // show timer of break
+            var breakSecondCounter = roundBreakTimer;
+
+            updateTimerDisplayFromSeconds(breakSecondCounter);
+            
+            var breakTimerID = setInterval(function () {
+                if (!isPaused) {
+
+                    --breakSecondCounter;
+                    updateTimerDisplayFromSeconds(breakSecondCounter);
+
+                    if (breakSecondCounter == 3) {
+                        playSound('countdown');
+                    }
+
+                    if (breakSecondCounter < 1) {
+                        console.log('clear_break_timer', breakTimerID);
+
+                        clearInterval(breakTimerID);
+                        startRound();
+                        return false;
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateWorkoutTimer() {
+            // console.log('getting started ' + sTimer + ' = ' + workoutDuration);
+            sDisplay.removeClass("text-secondary");
+            // console.log('sTimer', sTimer);
+
+            // just started
+            if (sTimer == workoutDuration) {
+                ++workoutNumber;
+
+                // scroll to workout item
+                var offset = $(".top-spacer").height() + 75;
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: $("#workout-" + workoutNumber).offset().top - offset
+                }, 500);
+
+                // update timer text
+                $(".rest, .round-break").addClass("d-none");
+                $(".workit").removeClass("d-none");
+
+                // show workout item as active
+                $(".workout-" + workoutNumber)
+                    .addClass(activeItemClass)
+                    .removeClass(pendingItemClass);
+            }
+
+            // countdown tones
+            if (sTimer == 3) {
+                playSound('countdown_to_rest');
+            }
+
+            // update DOM
+            if (sTimer > -1) {
+                updateTimerDisplay();
+            }
+
+            // ending
+            if (sTimer < 2) {
+                toggleExerciseAndRest();
+
+                setTimeout(function() {
+                    $(".workout-" + workoutNumber)
+                        .removeClass(activeItemClass)
+                        .addClass(finishedItemClass);
+                }, 1000);
+            }
+        }
+
+        function updateRestTimer() {
+            sDisplay.addClass("text-secondary");
+
+            if (sTimer == breakDuration) {
+                var nextWorkoutNumber = workoutNumber + 1;
+                console.log('this one is now pending', nextWorkoutNumber);
+                
+                if (!$(".timer-text").hasClass("d-none")) {
+                    $(".timer-text").addClass("d-none");
+                }
+
+                $(".rest").removeClass("d-none");
+                $(".workit, .round-break").addClass("d-none");
+
+                $(".workout-" + nextWorkoutNumber)
+                    .addClass(pendingItemClass)
+                    .removeClass(activeItemClass);
+
+                $(".list-group-workout-item." + activeItemClass)
+                    .removeClass(activeItemClass)
+                    .addClass(finishedItemClass);
+            }
+
+            // countdown tones
+            if (sTimer == 3) {
+                playSound('countdown');
+            }
+
+            // update DOM
+            if (sTimer > -1) {
+                updateTimerDisplay();
+            }
+
+            // ending
+            if (sTimer < 2) {
+                toggleExerciseAndRest();
+            }
+        }
+
+        function toggleExerciseAndRest() {
+            isExercising = !isExercising;
+            isResting = !isResting;
+
+            // if isResting, check if this is the last exercise
+            if (isResting) {
+                var nextWorkoutNumber = workoutNumber + 1;
+                if (!$(".workout-" + nextWorkoutNumber).attr('class')) {
+                    isExercising = true;
+                    return false;
+                }
+            }
+
+            sTimer = isExercising ? workoutDuration : breakDuration;
+            ++sTimer;
+        }
+
+        function updateTotalTimer() {
+            minutes = calcSecondsToMinutes(timer);
+            seconds = calcRemainingSecondsInMinute(timer);
+            display.text(minutes + ":" + seconds);
+        }
+
+        function updateTimerDisplay() {
+            updateTimerDisplayFromSeconds(sTimer);
+        }
+
+        function updateTimerDisplayFromSeconds(timerInSeconds)
+        {
+            sTimer = timerInSeconds;
+            sMinutes = calcSecondsToMinutes(sTimer);
+            sSeconds = calcRemainingSecondsInMinute(sTimer);
+            sDisplay.text(sMinutes + ":" + sSeconds);
         }
 
         function setTimersUI() {
@@ -245,41 +432,14 @@
             return nowSeconds < 10 ? "0" + nowSeconds : nowSeconds;
         }
 
-        function updateTotalTimer() {
-            minutes = calcSecondsToMinutes(timer);
-            seconds = calcRemainingSecondsInMinute(timer);
-            display.text(minutes + ":" + seconds);
-
-            if (--timer < 0) {
-                // check for round
-                if (roundCounter > 0) {
-                    console.log('prepare for next round');
-                    console.log('remaining_rounds', roundCounter);
-                    roundCounter = roundCounter - 1;
-                    roundCounterDisplay.text(roundCounter.toString());
-
-                    // scroll to top of page
-                    $("html, body").animate({ scrollTop: 0 }, 500);
-
-                    if (roundCounter > 0) {
-                        onRestBetweenRounds = true;
-                    } else {
-                        workoutIsComplete();
-                    }
-                } else {
-                    workoutIsComplete();
-                }
-            }
-        }
-
         function workoutIsComplete() {
+            stopSound('countdown_to_rest');
             playSound('success');
             resetWorkout();
         }
 
         function resetWorkout() {
             timer = 0;
-            isTimerRunning = false;
             isPaused = false;
 
             setTimeout(function() {
@@ -362,7 +522,7 @@
             ++resetWorkoutNumber;
 
             if ($(".workout-" + resetWorkoutNumber).hasClass(finishedItemClass)) {
-                $(".workout-" + resetWorkoutNumber).removeClass(finishedItemClass);
+                $(".workout-" + resetWorkoutNumber).removeClass(finishedItemClass).removeClass(activeItemClass).removeClass(pendingItemClass);
 
                 setTimeout(function() {
                     resetItems();
@@ -372,139 +532,6 @@
             }
             
             resetWorkoutNumber = 0;
-        }
-
-        function updateWorkoutTimer() {
-            // update the UI
-            if (onRestBetweenRounds) {
-                if (sTimer === 0) {
-                    // play sound "relax, take a break, something like that
-                    console.log('play sound "relax, take a break, something like that"');
-                    // playSound('complete');
-
-                    if (!$(".timer-text").hasClass("d-none")) {
-                        $(".timer-text").addClass("d-none");
-                    }
-
-                    $(".round-break").removeClass("d-none");
-                    $(".workit, .rest").addClass("d-none");
-
-                    workoutNumber = 0;
-                } else {
-                    console.log('is this ever called?');                
-                    $(".list-group-workout-item").removeClass(finishedItemClass).removeClass(activeItemClass);
-                }
-            } else if (onBreak) {
-                sDisplay.addClass("text-secondary");
-
-                if (sTimer == breakDuration) {
-                    if (!justStarted) {
-                        // all rest time periods start here
-
-                        if (!roundResetting) {
-                            // playSound('complete');
-                        }
-
-                        roundResetting = false;
-                    }
-
-                    if (!$(".timer-text").hasClass("d-none")) {
-                        $(".timer-text").addClass("d-none");
-                    }
-
-                    $(".rest").removeClass("d-none");
-                    $(".workit, .round-break").addClass("d-none");
-
-                    ++workoutNumber;
-                    workoutPrevNumber = workoutNumber - 1;
-
-                    $(".workout-" + workoutNumber)
-                        .addClass(pendingItemClass)
-                        .removeClass(activeItemClass);
-
-                    $(".list-group-workout-item." + activeItemClass)
-                        .removeClass(activeItemClass)
-                        .addClass(finishedItemClass);
-                }
-            } else {
-                sDisplay.removeClass("text-secondary");
-
-                if (sTimer == workoutDuration) {
-                    if (!justStarted) {
-                        // should say "workout"
-                        // playSound('begin');
-
-                        var offset = $(".top-spacer").height() + 75;
-
-                        $([document.documentElement, document.body]).animate({
-                            scrollTop: $("#workout-" + workoutNumber).offset().top - offset
-                        }, 500);
-                    }
-
-                    $(".rest, .round-break").addClass("d-none");
-                    $(".workit").removeClass("d-none");
-
-                    $(".workout-" + workoutNumber)
-                        .addClass(activeItemClass)
-                        .removeClass(pendingItemClass);
-                }
-
-                if (sTimer === 0) {
-                    $(".workout-" + workoutNumber)
-                        .removeClass(activeItemClass)
-                        .addClass(finishedItemClass);
-                }
-            }
-
-            // time is now up and running
-            justStarted = false;
-
-            // countdown tones
-            if (!onRestBetweenRounds) {
-                if (sTimer < 4) {
-                    if (sTimer == 3) {
-                        if (onBreak || roundResetting) {
-                            playSound('countdown');
-                        } else {
-                            playSound('countdown_to_rest');
-                        }
-                    // } else if (sTimer == 2) {
-                        // playSound('beep2');
-                    // } else if (sTimer == 1) {
-                        // playSound('beep1');
-                    }
-                }
-            }
-
-            if (sTimer > -1) {
-                sMinutes = calcSecondsToMinutes(sTimer);
-                sSeconds = calcRemainingSecondsInMinute(sTimer);
-                sDisplay.text(sMinutes + ":" + sSeconds);
-            }
-
-            if (--sTimer < 1) {
-                if (onRestBetweenRounds) {
-                    if (timer < 0) {
-                        sTimer = roundBreakTimer;
-                        timer = roundBreakTimer;
-                    } else {
-                        timer = duration;
-                        sTimer = breakDuration;
-                        roundResetting = true;
-                        onRestBetweenRounds = false;
-                        onBreak = true;
-                        console.log('roundResetting');
-                    }
-                } else if (onBreak) {
-                    sTimer = workoutDuration;
-                    onBreak = false;
-                } else {
-                    if (timer > 0) {
-                        sTimer = breakDuration;
-                        onBreak = true;
-                    }
-                }
-            }
         }
 
         function playSound(soundID, muted) {
@@ -528,6 +555,12 @@
             }
 
             audio.play();
+        }
+
+        function stopSound(soundID) {
+            var audio = sounds[soundID];
+                audio.pause();
+                audio.currentTime = 0;
         }
 
         function playAllSounds() {
@@ -565,6 +598,49 @@
 
             $(".list-group").append(item_html);
         }
+
+
+
+
+
+        $(".start-timer").click(function() {
+            // stop user from initiating multiple times
+            $(this).attr("disabled", true).addClass("show-disabled");
+            $('body').addClass("is-playing");
+
+            $(".rest").removeClass("d-none");
+            $(".timer-text, .workit, .round-break").addClass("d-none");
+
+            // set first item as pending
+            $(".workout-1").addClass(pendingItemClass)
+
+            // hack to give permission to play sounds
+            playAllSounds();
+
+            // sound to notify user timer has started
+            playSound('begin');
+
+            // show pre-workout timer
+            countdown = preWorkoutTimer;
+            console.log('start coundtown timer');
+            updateTimerDisplayFromSeconds(countdown);
+            var countdownInterval = setInterval(function() {
+                console.log(countdown);
+                countdown--;
+                
+                if (countdown == 3) {
+                    playSound('countdown');
+                }
+
+                updateTimerDisplayFromSeconds(countdown);
+                
+                if (countdown < 1) {
+                    clearInterval(countdownInterval);
+                    startRound();
+                    return false;
+                }
+            }, 1000);
+        });
 
         if ($("#workoutItems").hasClass("list-group")) {
             Sortable.create(workoutItems, {
@@ -631,28 +707,6 @@
             setTimeout(function() {
                 $("#hasCopied").hide();
             }, 2000);
-        });
-
-        $(".start-timer").click(function() {
-            // stop user from initiating multiple times
-            $(this).attr("disabled", true).addClass("show-disabled");
-            $('body').addClass("is-playing");
-
-            // check if timer is paused
-            if (isPaused) {
-                isPaused = false;
-                return false;
-            }
-
-            // hack to give permission to play sounds
-            playAllSounds();
-
-            // sound to notify user timer has started
-            // should say "get ready..."
-            playSound('begin');
-
-            // begin timer
-            startTimer();
         });
 
         $(".stop-timer").click(function() {

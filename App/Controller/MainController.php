@@ -84,7 +84,7 @@ class MainController extends Controller
     {
         $timerInSeconds = 0;
         $timerInSeconds += $limit * $workoutLength;
-        $timerInSeconds += $limit * $workoutBreak;
+        $timerInSeconds += ($limit * $workoutBreak) - $workoutBreak;
 
         return $timerInSeconds;
     }
