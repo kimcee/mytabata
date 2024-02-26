@@ -177,7 +177,7 @@
         let preWorkoutTimer = 10;
         let resetTimerCountdown = 0;
         let isPaused = false;
-        let roundBreakTimer = 60;
+        let roundBreakTimer = 10;
         let workoutNumber = 0;
         let resetWorkoutNumber = 0;
         let justStarted = false;
@@ -246,14 +246,14 @@
             roundCounter--;
             if (roundCounter > 0) {
                 roundCounterDisplay.text(roundCounter.toString());
-                startRountBreak();
+                startRoundBreak();
             } else {
                 workoutIsComplete();
             }
         }
 
         // Start the big break between rounds
-        function startRountBreak() {
+        function startRoundBreak() {
             // reset all items so they look like they did when ths round first started
             duration = defaultDuration;
             workoutDuration = defaultWorkoutDuration;
@@ -268,6 +268,9 @@
             $(".list-group-workout-item").removeClass(finishedItemClass).removeClass(activeItemClass);
             $(".rest").removeClass("d-none");
             $(".timer-text, .workit, .round-break").addClass("d-none");
+
+            // scroll to top
+            $("html, body").animate({ scrollTop: 0 }, 500);
 
             // show timer of break
             var breakSecondCounter = roundBreakTimer;
@@ -303,12 +306,6 @@
             // just started
             if (sTimer == workoutDuration) {
                 ++workoutNumber;
-
-                // scroll to workout item
-                var offset = $(".top-spacer").height() + 75;
-                $([document.documentElement, document.body]).animate({
-                    scrollTop: $("#workout-" + workoutNumber).offset().top - offset
-                }, 500);
 
                 // update timer text
                 $(".rest, .round-break").addClass("d-none");
@@ -347,7 +344,12 @@
 
             if (sTimer == breakDuration) {
                 var nextWorkoutNumber = workoutNumber + 1;
-                console.log('this one is now pending', nextWorkoutNumber);
+
+                // scroll to workout item
+                var offset = $(".top-spacer").height() + 75;
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: $("#workout-" + nextWorkoutNumber).offset().top - offset
+                }, 500);
                 
                 if (!$(".timer-text").hasClass("d-none")) {
                     $(".timer-text").addClass("d-none");
@@ -441,6 +443,9 @@
         function resetWorkout() {
             timer = 0;
             isPaused = false;
+            
+            // scroll to top
+            $("html, body").animate({ scrollTop: 0 }, 500);
 
             setTimeout(function() {
                 playSound('reset');
@@ -612,7 +617,8 @@
             $(".timer-text, .workit, .round-break").addClass("d-none");
 
             // set first item as pending
-            $(".workout-1").addClass(pendingItemClass)
+            $(".workout-1").addClass(pendingItemClass);
+            $("html, body").animate({ scrollTop: 0 }, 500);
 
             // hack to give permission to play sounds
             playAllSounds();
@@ -622,10 +628,9 @@
 
             // show pre-workout timer
             countdown = preWorkoutTimer;
-            console.log('start coundtown timer');
             updateTimerDisplayFromSeconds(countdown);
+
             var countdownInterval = setInterval(function() {
-                console.log(countdown);
                 countdown--;
                 
                 if (countdown == 3) {
@@ -850,7 +855,6 @@
                     workout_items: workout_items,
                 },
                 success: function (result) {
-                    console.log(result);
                     roundCounter = parseInt(result.rounds);
                     roundCounterDisplay.text(result.rounds);
                     timer = duration = result.timer_in_seconds;
@@ -920,7 +924,7 @@
 
                 $("#item-name-" + key).on('select2:select', function (e) {
                     var selectedData = e.params.data;
-                    console.log('select', selectedData);
+
                     if (selectedData && selectedData.id) {
                         saveNewWorkout(selectedData.text, key, selectedData.id);
                     }
