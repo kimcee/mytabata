@@ -235,33 +235,40 @@
             color: #fff;
         }
         .select2-selection.select2-selection--single {
-            background: #333 !important;
             padding: 5px 3px 3px;
             min-height: 40px;
             border-radius: 0;
             border-bottom: 0;
         }
-        .select2-container--default .select2-results__option--highlighted[aria-selected] {
-            background-color: #777;
-            color: white;
-        }
         .select2-selection__rendered {
-            color: #fff !important;
             background: none !important;
             border: 0;
             outline: 0;
-        }
-        .select2-dropdown.select2-dropdown--below {
-            background: #333;
-        }
-        .select2-search__field {
-            background: #000;
         }
         .select2-results__option {
             font-size: 22px;
             padding: 10px;
             text-transform: uppercase;
         }
+
+        .theme-dark .select2-selection.select2-selection--single {
+            background: #333 !important;
+        }
+        .theme-dark .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #777;
+            color: white;
+        }
+        .theme-dark .select2-selection__rendered {
+            color: #fff !important;
+        }
+        .theme-dark .select2-dropdown.select2-dropdown--below {
+            background: #333;
+        }
+        .theme-dark .select2-search__field {
+            background: #000;
+        }
+
+
         .modal-backdrop {
             z-index: 89 !important;
         }
