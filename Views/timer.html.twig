@@ -160,8 +160,11 @@
     <audio id="beep3" autoload="auto"><source src="/Assets/sounds/beep_1.mp3" type="audio/mpeg"></audio>
     <audio id="beep2" autoload="auto"><source src="/Assets/sounds/beep_1.mp3" type="audio/mpeg"></audio>
     <audio id="beep1" autoload="auto"><source src="/Assets/sounds/beep_1.mp3" type="audio/mpeg"></audio>
-    <audio id="begin" autoload="auto"><source src="/Assets/sounds/beep_2.mp3" type="audio/mpeg"></audio>
-    <audio id="complete" autoload="auto"><source src="/Assets/sounds/success.mp3" type="audio/mpeg"></audio>
+    {# <audio id="begin" autoload="auto"><source src="/Assets/sounds/beep_2.mp3" type="audio/mpeg"></audio> #}
+    <audio id="begin" autoload="auto"><source src="/Assets/sounds/begin.mp3" type="audio/mpeg"></audio>
+    <audio id="countdown" autoload="auto"><source src="/Assets/sounds/countdown.mp3" type="audio/mpeg"></audio>
+    <audio id="complete" autoload="auto"><source src="/Assets/sounds/complete.mp3" type="audio/mpeg"></audio>
+    <audio id="success" autoload="auto"><source src="/Assets/sounds/success.mp3" type="audio/mpeg"></audio>
 
 {% endblock %}
 
@@ -177,6 +180,7 @@
         let isTimerRunning = false;
         let onBreak = false;
         let onRestBetweenRounds = false;
+        let roundResetting = false;
         let roundBreakTimer = 60;
         let workoutNumber = 0;
         let justStarted = false;
@@ -244,6 +248,9 @@
                     roundCounter = roundCounter - 1;
                     roundCounterDisplay.text(roundCounter.toString());
 
+                    // scroll to top of page
+                    $("html, body").animate({ scrollTop: 0 }, 500);
+
                     if (roundCounter > 0) {
                         onRestBetweenRounds = true;
                     } else {
@@ -260,7 +267,8 @@
             isTimerRunning = false;
 
             // should say, "congratulations, you're all  done!"
-            playSound('complete');
+            console.log('play sound "congratulations, you\'re all done!"');
+            playSound('success');
 
             $(".timer-text").removeClass("d-none");
             $(".rest, .workit, .round-break").addClass("d-none");
@@ -271,7 +279,8 @@
             if (onRestBetweenRounds) {
                 if (sTimer === 0) {
                     // play sound "relax, take a break, something like that
-                    playSound('complete');
+                    console.log('play sound "relax, take a break, something like that"');
+                    // playSound('complete');
 
                     if (!$(".timer-text").hasClass("d-none")) {
                         $(".timer-text").addClass("d-none");
@@ -289,8 +298,13 @@
 
                 if (sTimer == breakDuration) {
                     if (!justStarted) {
-                        // should say "rest"
-                        playSound('complete');
+                        // all rest time periods start here
+
+                        if (!roundResetting) {
+                            // playSound('complete');
+                        }
+
+                        roundResetting = false;
                     }
 
                     if (!$(".timer-text").hasClass("d-none")) {
@@ -317,7 +331,7 @@
                 if (sTimer == workoutDuration) {
                     if (!justStarted) {
                         // should say "workout"
-                        playSound('begin');
+                        // playSound('begin');
 
                         var offset = $(".top-spacer").height() + 75;
 
@@ -345,13 +359,15 @@
             justStarted = false;
 
             // countdown tones
-            if (sTimer < 4) {
-                if (sTimer == 3) {
-                    playSound('beep3');
-                } else if (sTimer == 2) {
-                    playSound('beep2');
-                } else if (sTimer == 1) {
-                    playSound('beep1');
+            if (!onRestBetweenRounds) {
+                if (sTimer < 4) {
+                    if (sTimer == 3) {
+                        playSound('countdown'); 
+                    } else if (sTimer == 2) {
+                        // playSound('beep2');
+                    } else if (sTimer == 1) {
+                        // playSound('beep1');
+                    }
                 }
             }
 
@@ -369,8 +385,10 @@
                     } else {
                         timer = duration;
                         sTimer = breakDuration;
+                        roundResetting = true;
                         onRestBetweenRounds = false;
                         onBreak = true;
+                        console.log('roundResetting');
                     }
                 } else if (onBreak) {
                     sTimer = workoutDuration;
@@ -410,10 +428,12 @@
         function playAllSounds() {
             // this is to give us access to
             // auto play the remaining sounds
-            playSound('beep1', true);
-            playSound('beep2', true);
-            playSound('beep3', true);
-            playSound('complete', true);
+            // playSound('countdown', true);
+            // playSound('beep1', true);
+            // playSound('beep2', true);
+            // playSound('beep3', true);
+            // playSound('complete', true);
+            playSound('success', true);
         }
 
         function addNewExerciseItem(key, item) {
@@ -697,7 +717,7 @@
 
         setTimersUI();
 
-{% if USER.id %}
+        {% if USER.id %}
             $("body").on("click", ".edit-item", function() {
                 let key = $(this).parent("span").parent("div").parent("div").find(".item-key").val();
                 $(".item-name-" + key).addClass("d-none");
