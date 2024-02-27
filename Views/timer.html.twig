@@ -177,7 +177,7 @@
         let preWorkoutTimer = 10;
         let resetTimerCountdown = 0;
         let isPaused = false;
-        let roundBreakTimer = 10;
+        let roundBreakTimer = 60;
         let workoutNumber = 0;
         let resetWorkoutNumber = 0;
         let justStarted = false;
@@ -571,8 +571,8 @@
         function playAllSounds() {
             // this is to give us access to
             // auto play the remaining sounds
-            // playSound('countdown', true);
-            // playSound('countdown_to_rest', true);
+            playSound('countdown', true);
+            playSound('countdown_to_rest', true);
             // playSound('beep1', true);
             // playSound('beep2', true);
             // playSound('beep3', true);
