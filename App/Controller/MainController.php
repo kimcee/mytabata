@@ -592,9 +592,9 @@ class MainController extends Controller
         $equipment .= @$_POST['yogamat'] ? 'Yogamat, ' : '';
         $equipment .= @$_POST['jumprope'] ? 'Jumprope, ' : '';
         $equipment .= @$_POST['kettle'] ? 'Kettlebells, ' : '';
-        $equipment .= @$_POST['dumbbell'] ? 'Dumbbells, ' : 'Dumbells, ';
+        $equipment .= @$_POST['dumbbell'] ? 'Dumbbells, ' : '';
         $equipment .= @$_POST['bench'] ? 'Bench, ' : '';
-        $equipment .= @$_POST['box'] ? 'Box, ' : 'Box, ';
+        $equipment .= @$_POST['box'] ? 'Box, ' : '';
         $equipment .= @$_POST['stepper'] ? 'Stepper, ' : '';
         $equipment = trim($equipment, ', ');
 
