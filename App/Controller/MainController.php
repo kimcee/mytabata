@@ -659,7 +659,7 @@ class MainController extends Controller
             },
           ]
         }\n";
-        $userSurveyPrompt .= "Please format your response in a similar manner but with data specific to survey responses, so the total number of `exercises` will be based on the tabata routine you come up and the names and descriptions should all be something you come up with as well. The only thing you need to keep consistent is the structure and keys of the json, all of the values should come from your response based on the survey. The total number of entries in `days` should be equal to `Number of days per week for workouts` from the survey.";
+        $userSurveyPrompt .= "Please format your response in a similar manner but with data specific to survey responses, so the total number of `exercises` will be based on the tabata routine you come up and the names and descriptions should all be something you come up with as well. The exercises should be based on the equipment specified in the survey or use cardio movements and body weight. The only thing you need to keep consistent is the structure and keys of the json, all of the values should come from your response based on the survey. The total number of entries in `days` should be equal to `Number of days per week for workouts` from the survey.";
 
         $apiKey = OPENAI_API_KEY;
 
