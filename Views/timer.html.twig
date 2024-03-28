@@ -303,7 +303,30 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p id="itemDetails"></p>
+                {% if USER.id %}
+                    <div class="can-not-edit-this-item">
+                        <p class="item-details"></p>
+                    </div>
+                    <div class="can-edit-this-item">
+                        <div class="can-not-edit">
+                            <p class="item-details"></p>
+                        </div>
+                        <div class="can-edit">
+                            <div class="pt-3">
+                                <input type="text" class="form-control" name="itemDetailsInput" id="itemDetailsInput" />
+                            <div class="pt-3">
+                                <textarea class="form-control" id="itemDetailsTextarea"></textarea>
+                            </div>
+                            <div class="pt-3">
+                                <button type="button" class="btn btn-primary save-exercise-description">Save</button>
+                            </div>
+                            <div id="itemUpdate"></div>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="item-details"></p>
+                {% endif %}
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -1033,6 +1056,8 @@
             $("#viewItem").modal("show");
             let itemId = $(this).attr("data-id");
 
+            $(".save-exercise-description").attr("data-id", itemId);
+
             $.post({
                 type: "POST",
                 url: "/ajax/get_item",
@@ -1041,10 +1066,57 @@
                 },
                 success: function (result) {
                     $("#viewItemLabel").html(result.name);
-                    $("#itemDetails").text(result.description);
+                    $(".item-details").text(result.description);
+                    $(".can-not-edit-this-item").removeClass("d-none");
+                    $(".can-edit-this-item").addClass("d-none");
+                    
+                    if (result.can_edit) {
+                        $(".can-not-edit-this-item").addClass("d-none");
+                        $(".can-edit-this-item").removeClass("d-none");
+
+                        if ($("#itemDetailsTextarea").length > 0) {
+                            $("#itemDetailsTextarea").val(result.description);
+                        }
+
+                        if ($("#itemDetailsInput").length > 0) {
+                            $("#itemDetailsInput").val(result.name);
+                        }
+                    }
                 }
             });
-        })
+        });
+
+        $(".save-exercise-description").click(function() {
+            let itemId = $(this).attr("data-id");
+
+            $.post({
+                type: "POST",
+                url: "/ajax/save_item_details",
+                data: {
+                    item_id: itemId,
+                    name: $("#itemDetailsInput").val(),
+                    description: $("#itemDetailsTextarea").val()
+                },
+                success: function (result) {
+                    $("#viewItemLabel").html(result.name);
+                    $(".item-details").text(result.description);
+
+                    if ($("#itemDetailsTextarea").length > 0) {
+                        $("#itemDetailsTextarea").val(result.description);
+                    }
+
+                    if ($("#itemDetailsInput").length > 0) {
+                        $("#itemDetailsInput").val(result.name);
+                    }
+
+                    $("#itemUpdate").html('<div class="alert alert-success" role="alert">Saved!</div>');
+
+                    setTimeout(function() {
+                        $("#itemUpdate").html("");
+                    }, 2000);
+                }
+            });
+        });
 
         $(".settings-workout").click(function() {
             $(".change-settings").slideToggle(250);

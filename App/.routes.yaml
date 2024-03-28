@@ -79,6 +79,9 @@ ajax_ai_generate_workout:
 ajax_get_item:
     controller: App\Controller\MainController
     method: ajaxGetItem
+ajax_save_item_details:
+    controller: App\Controller\MainController
+    method: ajaxSaveItemDetails
 account:
     controller: App\Controller\MainController
     method: account

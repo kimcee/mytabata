@@ -745,12 +745,11 @@ class MainController extends Controller
                     'name' => $workoutRoutine->name,
                 ];
         
-                // add 
                 foreach ($day['exercises'] as $exercise) {
 
                     $exerciseItem = new Exercise();
                     $exerciseItem->name = @$exercise['name'];
-                    $exerciseItem->description = @$exercise['description'];
+                    $exerciseItem->description = $this->sanitizeDescription(@$exercise['description']);
                     $exerciseItem->user = $this->user->id;
                     $exerciseItem->create();
 
@@ -784,8 +783,43 @@ class MainController extends Controller
     {
         $exercise = Exercise::findBy([
             'id' => (int) @$_POST['item_id'], 
-            'user' => empty($this->user) ? 0 : $this->user->id
+            'user' => $this->user->id
         ], 1);
+
+        if (empty($exercise) || empty($exercise->id)) {
+            $exercise = Exercise::findBy([
+                'id' => (int) @$_POST['item_id'], 
+                'user' => 1
+            ], 1);
+        }
+
+        $this->ajax([
+            'status' => 'success',
+            'can_edit' => ($exercise->user == $this->user->id),
+            'name' => $exercise->name,
+            'description' => $exercise->description,
+        ]);
+    }
+
+    public function ajaxSaveItemDetails()
+    {
+        $this->requiresAuth();
+
+        $exercise = Exercise::findBy([
+            'id' => (int) @$_POST['item_id'], 
+            'user' => $this->user->id
+        ], 1);
+
+        if (empty($exercise) || empty($exercise->id)) {
+            $this->ajax([
+                'status' => 'error',
+                'message' => 'Exercise not found',
+            ]);
+        }
+
+        $exercise->name = $this->formatName($_POST['name']);
+        $exercise->description = $this->sanitizeDescription($_POST['description']);
+        $exercise->save();
 
         $this->ajax([
             'status' => 'success',
@@ -822,7 +856,12 @@ class MainController extends Controller
             $name
         );
 
-        return strtoupper($name);
+        return $name;
+    }
+
+    private function sanitizeDescription(string $description = ''): string
+    {
+        return htmlentities(strip_tags($description));
     }
 
     private function requiresAuth()
