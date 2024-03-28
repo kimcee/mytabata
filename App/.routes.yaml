@@ -45,6 +45,10 @@ ajax_delete_routine:
     controller: App\Controller\MainController
     method: ajaxDeleteRoutine
     params: { routine_id: int }
+ajax_delete_favorite:
+    controller: App\Controller\MainController
+    method: ajaxDeleteFavorite
+    params: { routine_id: int }
 ajax_delete_exercise:
     controller: App\Controller\MainController
     method: ajaxDeleteExercise

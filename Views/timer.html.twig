@@ -290,6 +290,7 @@
                     <div class="alert alert-success">Our AI Fitness Trainer has completed your weekly workout routine.</div>
                     <p id="aiWorkoutText"></p>
                     <ul id="aiWorkoutList" class="ps-0" style="list-style: none;"></ul>
+                    <p>See these listed under <a href="/account">Account</a> > AI Generated</p>
                 </div>
             </div>
         </div>
@@ -1029,8 +1030,22 @@
                     $("#aiWorkoutText").html(result.message);
 
                     $(result.workouts).each(function() {
-                        $("#aiWorkoutList").append(
-                            '<li class="pb-3">' +
+
+                        let items = '';
+                        $(this.items).each(function() {
+                            items += '<li class="">' +
+                                    '<div class="d-flex justify-content-between align-items-center">' +
+                                        '<div class="flex-shrink-0 me-3">' +
+                                            '<i class="fa-solid fa-chevron-right"></i>' +
+                                        '</div>' +
+                                        '<div class="flex-grow-1 text-start">' +
+                                            '<span class="item-name">' + this.name + '</span>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</li>';
+                        });
+
+                        let listItem = '<li class="pb-3">' +
                                 '<div class="d-flex justify-content-between align-items-center">' +
                                     '<div class="flex-shrink-0 me-3">' +
                                         '<i class="fa-solid fa-dumbbell"></i>' +
@@ -1042,8 +1057,24 @@
                                         '<a href="/?routine_id=' + this.id + '" class="btn btn-primary btn-sm btn-xs">Get Started!</a>' +
                                     '</div>' + 
                                 '</div>' +
-                            '</li>'
-                        );
+                                '<div class="row">' +
+                                    '<div class="col-6" style="line-height: 22px;">' + 
+                                        '<span class="fw-bold">Details:</span><br />' +
+                                        '<span class="fw-bolde">Seconds/Exercise:</span> ' + this.sets_time + '<br />' +
+                                        '<span class="fw-bolde">Seconds/Break:</span> ' + this.break_time + '<br />' +
+                                        '<span class="fw-bolde">Total Rounds:</span> ' + this.rounds + '<br />' +
+                                        '<span class="fw-bolde">Equipment Needed:</span> ' + this.items_needed + '<br />' +
+                                    '</div>' +
+                                    '<div class="col-6" style="line-height: 22px;">' +
+                                        '<span class="fw-bold">Exercises:</span>' +
+                                        '<ul style="list-style: none;" class="ps-0">' +
+                                            items +
+                                        '</ul>' +
+                                    '</div>' +
+                            '</div>' +
+                            '</li>';
+                        
+                        $("#aiWorkoutList").append(listItem);
                     });
 
                     $("#modalAiWorkoutReady").modal("show");

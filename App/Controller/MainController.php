@@ -96,12 +96,25 @@ class MainController extends Controller
 
         $exercises = Exercise::findBy(['user' => $this->user->id]);
         $routines = Routine::findBy(['user' => $this->user->id]);
+        $favoriteRoutines = Favorite::findBy(['user' => $this->user->id]);
+        $favorites = [];
+
+        foreach ($favoriteRoutines as $favoriteRoutineId) {
+            foreach ($routines as $routine) {
+                if ($routine->id == $favoriteRoutineId->routine) {
+                    $favorites[] = $routine;
+                }
+            }
+        }
+
 
         $this->view("account", [
             'hasExercises' => (count($exercises) > 0),
             'exercises' => $exercises,
+            'hasFavorites' => (count($favorites) > 0),
             'hasRoutines' => (count($routines) > 0),
             'routines' => $routines,
+            'favorites' => $favorites,
             'showExercises' => !empty($_GET['exercises']),
         ]);
     }
@@ -468,6 +481,23 @@ class MainController extends Controller
         $this->ajaxDeleteRoutine($routineId);
     }
 
+    public function ajaxDeleteFavorite(int $routineId = 0)
+    {
+        $this->requiresAuthAjax();
+
+        // delete favorite first
+        $favorite = Favorite::findBy([
+            'user' => $this->user->id,
+            'routine' => $routineId
+        ], 1);
+
+        if (!empty($favorite)) {
+            $favorite->delete();
+        }
+
+        $this->ajax(['status' => 'success']);
+    }
+
     public function ajaxDeleteRoutine(int $routineId = 0)
     {
         $this->requiresAuthAjax();
@@ -589,13 +619,13 @@ class MainController extends Controller
         $daysPerWeek = @$_POST['days'] ?? '5';
 
         $equipment = '';
-        $equipment .= @$_POST['yogamat'] ? 'Yogamat, ' : '';
-        $equipment .= @$_POST['jumprope'] ? 'Jumprope, ' : '';
-        $equipment .= @$_POST['kettle'] ? 'Kettlebells, ' : '';
-        $equipment .= @$_POST['dumbbell'] ? 'Dumbbells, ' : '';
-        $equipment .= @$_POST['bench'] ? 'Bench, ' : '';
-        $equipment .= @$_POST['box'] ? 'Box, ' : '';
-        $equipment .= @$_POST['stepper'] ? 'Stepper, ' : '';
+        $equipment .= 'true' == @$_POST['yogamat'] ? 'Yogamat, ' : '';
+        $equipment .= 'true' == @$_POST['jumprope'] ? 'Jumprope, ' : '';
+        $equipment .= 'true' == @$_POST['kettle'] ? 'Kettlebells, ' : '';
+        $equipment .= 'true' == @$_POST['dumbbell'] ? 'Dumbbells, ' : '';
+        $equipment .= 'true' == @$_POST['bench'] ? 'Bench, ' : '';
+        $equipment .= 'true' == @$_POST['box'] ? 'Box, ' : '';
+        $equipment .= 'true' == @$_POST['stepper'] ? 'Stepper, ' : '';
         $equipment = trim($equipment, ', ');
 
         $userSurveyPrompt = "You are an incredible fitness and tabata workout creator. You've just completed a user survey to generate a Tabata workout. Here are the responses:\n\n";
@@ -740,15 +770,12 @@ class MainController extends Controller
                 $workoutRoutine->rounds = (int) @$day['totalRounds'] ? $day['totalRounds'] : 3;
                 $workoutRoutine->create();
 
-                $workouts[] = [
-                    'id' => $workoutRoutine->id,
-                    'name' => $workoutRoutine->name,
-                ];
+                $items = [];
         
                 foreach ($day['exercises'] as $exercise) {
 
                     $exerciseItem = new Exercise();
-                    $exerciseItem->name = @$exercise['name'];
+                    $exerciseItem->name = $this->formatName(@$exercise['name']);
                     $exerciseItem->description = $this->sanitizeDescription(@$exercise['description']);
                     $exerciseItem->user = $this->user->id;
                     $exerciseItem->create();
@@ -758,13 +785,29 @@ class MainController extends Controller
                     $workoutRoutineExercise->routine = $workoutRoutine->id;
                     $workoutRoutineExercise->exercise = $exerciseItem->id;
                     $workoutRoutineExercise->create();
+
+                    $items[] = [
+                        'name' => $exerciseItem->name,
+                        'description' => $exerciseItem->description
+                    ];
                 }
+
+                $workouts[] = [
+                    'id' => $workoutRoutine->id,
+                    'name' => $workoutRoutine->name,
+                    'items_needed' => $workoutRoutine->items_needed,
+                    'items' => $items,
+                    'sets' => $workoutRoutine->sets,
+                    'sets_time' => $workoutRoutine->sets_time,
+                    'break_time' => $workoutRoutine->break_time,
+                    'rounds' => $workoutRoutine->rounds,
+                ];
         
                 // now heart the routine
-                $favorite = new Favorite();
-                $favorite->user = $this->user->id;
-                $favorite->routine = $workoutRoutine->id;
-                $favorite->create();
+                // $favorite = new Favorite();
+                // $favorite->user = $this->user->id;
+                // $favorite->routine = $workoutRoutine->id;
+                // $favorite->create();
             }
         }
 
@@ -776,6 +819,7 @@ class MainController extends Controller
             'status' => 'success',
             'workouts' => $workouts,
             'message' => $message,
+            'data' => $data,
         ]);
     }
 
