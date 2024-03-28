@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en">
+<html lang="en" data-bs-theme="{% if USER.id and USER.dark_mode %}dark{% else %}light{% endif %}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -8,7 +8,7 @@
     <title>MyTABATA{% block title %}{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link rel="stylesheet" type="text/css" href="/Assets/styles/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="/Assets/styles/style.css">
+    <link rel="stylesheet" type="text/css" href="/Assets/styles/style.css?v=6">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="/Assets/fonts/css/fontawesome-all.min.css">
     <link rel="manifest" href="/Assets/_manifest.json?v=4" data-pwa-version="set_in_manifest_and_pwa_js">
@@ -64,7 +64,7 @@
             line-height: 68px;
             cursor: pointer;
         }
-        .w-action-btn {
+        .w-action-btn-style {
             cursor: pointer;
             background: #333;
             border-radius: 50%;
@@ -79,7 +79,7 @@
             margin-left: -15px !important;
             margin-right: -15px !important;
         }
-        .theme-light .w-action-btn {
+        .theme-light .w-action-btn-style {
             background: #ccc;
         }
         .bg-green-dark.show-disabled {
@@ -155,12 +155,12 @@
         .action-btns {
             letter-spacing: 15px;
         }
-        .is-playing .exercise-name {
+        {# .is-playing .exercise-name {
             width: 100% !important;
-        }
-        .is-playing .exercise-btns {
+        } #}
+        {# .is-playing .exercise-btns {
             display: none !important;
-        }
+        } #}
 
         @media screen and (max-width: 760px) {
             .action-btns {

@@ -6342,8 +6342,11 @@ input[type=number] {
 }
 
 .theme-dark .form-control:focus,
-.theme-dark .form-control {
-  background-color: transparent !important;
+.theme-dark .form-control,
+.theme-dark .form-select:focus,
+.theme-dark .form-select {
+  background-color: #000 !important;
+  font-size: 14px;
 }
 
 .theme-dark .tabs-no-border a {

@@ -29,8 +29,9 @@
                     <button class="rounded-circle bg-orange-dark stop-timer action-btn mb-3" title="Pause"><i class="fa-solid fa-pause"></i></button>
                     <button class="rounded-circle bg-pink-dark heart-workout action-btn mb-3" title="Favorite"><i class="fa-{% if isFavorite %}solid{% else %}regular{% endif %} fa-heart"></i></button>
                     <button class="rounded-circle bg-dark-dark refresh-workout action-btn mb-3" title="Refresh Workout"><i class="fa-solid fa-arrows-rotate"></i></button>
-                    <button class="rounded-circle bg-gray-dark settings-workout action-btn mb-3" title="Settings"><i class="fa-solid fa-gear"></i></button>
+                    <button class="rounded-circle bg-blue-dark ai-workout action-btn mb-3" title="AI Generated"><i class="fa-solid fa-star"></i></button>
 
+                    <button class="rounded-circle bg-gray-dark settings-workout action-btn mb-3" title="Settings"><i class="fa-solid fa-gear"></i></button>
                     
                     <button class="rounded-circle bg-yellow-dark share-workout action-btn mb-3{% if isFavorite %}{% else %} d-none{% endif %}" title="Share"><i class="fa-solid fa-share"></i></button>
                 </div>
@@ -121,9 +122,10 @@
                     <input type="hidden" class="item-key item-key-{{ key }}" value="{{ key }}" />
                 </div>
                 <div class="col-5 col-md-3 text-end text-md-end fs-6 text-nowrap exercise-btns">
-                    <span><i class="w-action-btn fa-solid fa-arrows-rotate change-item" data-key="{{ key }}"></i></span>
-                    <span><i class="w-action-btn fa-regular fa-pen-to-square edit-item edit-item-{{ key }}" data-key="{{ key }}"></i></span>
-                    <span><i class="w-action-btn fa-solid fa-check color-green-light save-item save-item-{{ key }} d-none" data-key="{{ key }}"></i></span>
+                    <span><i class="w-action-btn-style fa-solid fa-circle-info view-item" data-id="{{ workout['id'] }}"></i></span>
+                    <span><i class="w-action-btn w-action-btn-style fa-solid fa-arrows-rotate change-item" data-key="{{ key }}"></i></span>
+                    <span><i class="w-action-btn w-action-btn-style fa-regular fa-pen-to-square edit-item edit-item-{{ key }}" data-key="{{ key }}"></i></span>
+                    <span><i class="w-action-btn w-action-btn-style fa-solid fa-check color-green-light save-item save-item-{{ key }} d-none" data-key="{{ key }}"></i></span>
                     {# <span><i class="w-action-btn fa-sharp fa-solid fa-up-down sortable"></i></span> #}
                 </div>
             </div>
@@ -152,6 +154,163 @@
         </div>
     </div>
 
+
+    <div class="modal fade" id="modalAiWorkout" tabindex="-1" aria-labelledby="modalAiWorkoutLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modalAiWorkoutLabel">AI Fitness Trainer</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="alert alert-info">Use our AI Fitness Trainer to create a workout plan completely for you!</div>
+
+                    {% if USER.id %}
+
+                        <div class="mb-3">
+                            <label for="goalsSelect" class="form-label">What do you hope to achieve over the next few months?</label>
+                            <select class="form-select" id="goalsSelect">
+                                <option value="lose-weight">Lose Weight</option>
+                                <option value="gain-muscle">Gain Muscle</option>
+                                <option value="maintain">Maintain</option>
+                                <option value="stay-active">Stay Active</option>
+                                <option value="build-endurance">Build Cardio Endurance</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="weightInputs">
+                            <div class="d-flex justify-content-between">
+                                <div class="me-3">
+                                    <label for="currentWeightInput" class="form-label">Current Weight (lbs)</label>
+                                    <input type="number" class="form-control" id="currentWeightInput" placeholder="Enter current weight">
+                                </div>
+                                <div>
+                                    <label for="idealWeightInput" class="form-label">Ideal Weight (lbs)</label>
+                                    <input type="number" class="form-control" id="idealWeightInput" placeholder="Enter ideal weight">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Select any equipment you have access to:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="dumbbells" id="dumbbellsCheck">
+                                <label class="form-check-label" for="dumbbellsCheck">Dumbbells</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="kettlebells" id="kettlebellsCheck">
+                                <label class="form-check-label" for="kettlebellsCheck">Kettlebells</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="jump-rope" id="jumpRopeCheck">
+                                <label class="form-check-label" for="jumpRopeCheck">Jump Rope</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="yoga-mat" id="yogaMatCheck">
+                                <label class="form-check-label" for="yogaMatCheck">Yoga Mat</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="bench-mat" id="benchCheck">
+                                <label class="form-check-label" for="benchCheck">Bench</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="tire" id="stepperCheck">
+                                <label class="form-check-label" for="stepperCheck">Aerobic Stepper</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="other" id="boxCheck">
+                                <label class="form-check-label" for="boxCheck">Box Jump</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="timeAvailableInput" class="form-label">How much time do you have available in a day to work out?</label>
+                            <select class="form-select" id="timeAvailableInput">
+                                <option value="5">5 minutes</option>
+                                <option value="10">10 minutes</option>
+                                <option value="15">15 minutes</option>
+                                <option value="20">20 minutes</option>
+                                <option value="25">25 minutes</option>
+                                <option value="30">30 minutes</option>
+                                <option value="45">45 minutes</option>
+                                <option value="60">60 minutes</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="daysPerWeekInput" class="form-label">How many days a week do you plan to workout?</label>
+                            <select class="form-select" id="daysPerWeekInput">
+                                <option value="1">1 day</option>
+                                <option value="2">2 days</option>
+                                <option value="3">3 days</option>
+                                <option value="4">4 days</option>
+                                <option value="5">5 days</option>
+                                <option value="6">6 days</option>
+                                <option value="7">7 days</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary ai-generate-workout">Generate Workout Plan</button>
+                    {% else %}
+                        <div class="alert alert-warning">Please <a href="/login">login</a> or <a href="/register">register</a> to work with our AI Fitness Trainer.</div>
+                    {% endif %}
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalAiWorkoutLoading" tabindex="-1" aria-labelledby="modalAiWorkoutLoadingLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modalAiWorkoutLoadingLabel">AI Fitness Trainer</h1>
+                </div>
+                <div class="modal-body">
+
+                    <p>Crafting a routine explicitly for you and your goals! This may take a minute or two.</p>
+
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalAiWorkoutReady" tabindex="-1" aria-labelledby="modalAiWorkoutReadyLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="modalAiWorkoutReadyLabel">AI Fitness Trainer Ready</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-success">Our AI Fitness Trainer has completed your weekly workout routine.</div>
+                    <p id="aiWorkoutText"></p>
+                    <ul id="aiWorkoutList" class="ps-0" style="list-style: none;"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="viewItem" tabindex="-1" aria-labelledby="viewItemLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="viewItemLabel"></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="itemDetails"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block footer %}
@@ -813,6 +972,79 @@
                 });
             }
         });
+
+        $(".ai-workout").click(function() {
+            $("#modalAiWorkout").modal("show");
+        }); 
+
+{% if USER.id %}
+        $(".ai-generate-workout").click(function() {
+            $("#modalAiWorkout").modal("hide");
+            $("#modalAiWorkoutLoading").modal("show");
+
+            $.post({
+                type: "POST",
+                url: "/ajax/ai_generate_workout",
+                data: {
+                    goals: $("#goalsSelect").val(),
+                    weight_current: $("#currentWeightInput").val(),
+                    weight_ideal: $("#idealWeightInput").val(),
+                    time: $("#timeAvailableInput").val(),
+                    days: $("#daysPerWeekInput").val(),
+                    yogamat: $("#yogaMatCheck").is(":checked"),
+                    jumprope: $("#jumpRopeCheck").is(":checked"),
+                    kettle: $("#kettlebellsCheck").is(":checked"),
+                    dumbbell: $("#dumbbellsCheck").is(":checked"),
+                    bench: $("#benchCheck").is(":checked"),
+                    box: $("#boxCheck").is(":checked"),
+                    stepper: $("#stepperCheck").is(":checked"),
+                },
+                success: function (result) {
+                    $("#modalAiWorkoutLoading").modal("hide");
+                    
+
+                    $("#aiWorkoutText").html(result.message);
+
+                    $(result.workouts).each(function() {
+                        $("#aiWorkoutList").append(
+                            '<li class="pb-3">' +
+                                '<div class="d-flex justify-content-between align-items-center">' +
+                                    '<div class="flex-shrink-0 me-3">' +
+                                        '<i class="fa-solid fa-dumbbell"></i>' +
+                                    '</div>' +
+                                    '<div class="flex-grow-1 text-start">' +
+                                        '<span class="item-name">' + this.name + '</span>' +
+                                    '</div>' +
+                                    '<div class="flex-shrink-0">' +
+                                        '<a href="/?routine_id=' + this.id + '" class="btn btn-primary btn-sm btn-xs">Get Started!</a>' +
+                                    '</div>' + 
+                                '</div>' +
+                            '</li>'
+                        );
+                    });
+
+                    $("#modalAiWorkoutReady").modal("show");
+                }
+            });
+        });
+{% endif %}
+
+        $(".view-item").click(function() {
+            $("#viewItem").modal("show");
+            let itemId = $(this).attr("data-id");
+
+            $.post({
+                type: "POST",
+                url: "/ajax/get_item",
+                data: {
+                    item_id: itemId
+                },
+                success: function (result) {
+                    $("#viewItemLabel").html(result.name);
+                    $("#itemDetails").text(result.description);
+                }
+            });
+        })
 
         $(".settings-workout").click(function() {
             $(".change-settings").slideToggle(250);

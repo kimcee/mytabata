@@ -2,14 +2,15 @@
 
 namespace App\Controller;
 
+use OpenAI;
 use App\Entity\User;
-use App\System\Controller;
-use App\Service\WorkoutService;
-use App\Service\UserService;
-use App\Entity\Exercise;
 use App\Entity\Routine;
+use App\Entity\Exercise;
 use App\Entity\Favorite;
+use App\System\Controller;
+use App\Service\UserService;
 use App\Entity\RoutineExercise;
+use App\Service\WorkoutService;
 
 class MainController extends Controller
 {
@@ -571,6 +572,226 @@ class MainController extends Controller
 
         $this->updateSavedRoutine($routineId, $workoutItems);
         $this->ajax(['status' => 'success']);
+    }
+
+    public function ajaxAiGenerateWorkout()
+    {
+        $this->requiresAuthAjax();
+
+        // if (empty($_POST)) {
+        //     $this->ajax(['status' => 'error']);
+        // }
+
+        $goals = @$_POST['goals'] ?? 'Gain Muscle';
+        $weightCurrent = @$_POST['weight_current'] ?? '150';
+        $weightIdeal = @$_POST['weight_ideal'] ?? '165';
+        $timeAvailable = @$_POST['time'] ?? '20';
+        $daysPerWeek = @$_POST['days'] ?? '5';
+
+        $equipment = '';
+        $equipment .= @$_POST['yogamat'] ? 'Yogamat, ' : '';
+        $equipment .= @$_POST['jumprope'] ? 'Jumprope, ' : '';
+        $equipment .= @$_POST['kettle'] ? 'Kettlebells, ' : '';
+        $equipment .= @$_POST['dumbbell'] ? 'Dumbbells, ' : 'Dumbells, ';
+        $equipment .= @$_POST['bench'] ? 'Bench, ' : '';
+        $equipment .= @$_POST['box'] ? 'Box, ' : 'Box, ';
+        $equipment .= @$_POST['stepper'] ? 'Stepper, ' : '';
+        $equipment = trim($equipment, ', ');
+
+        $userSurveyPrompt = "You are an incredible fitness and tabata workout creator. You've just completed a user survey to generate a Tabata workout. Here are the responses:\n\n";
+        $userSurveyPrompt .= "Goals: {$goals}\n";
+        $userSurveyPrompt .= "Weight: {$weightCurrent} lbs, Ideal Weight: {$weightIdeal} lbs\n";
+        $userSurveyPrompt .= "Equipment available: {$equipment}\n";
+        $userSurveyPrompt .= "Time available per day: {$timeAvailable} minutes\n";
+        $userSurveyPrompt .= "Number of days per week for workouts: {$daysPerWeek}\n\n";
+        $userSurveyPrompt .= "Based on this information, design a Tabata workout routine that aligns with the user's goals, utilizes the available equipment, and fits within their time constraints. Determine how many rounds there will be, how long each exercise will be, and how long each break in between each exercise will be. Make sure the entire routine, include all rounds, is within their time constraints. Ensure the workout is balanced, effective, and suitable for achieving the stated goals.\n\n";
+        $userSurveyPrompt .= "This is a sample JSON response:\n\n";
+        $userSurveyPrompt .= "{
+          \"information\": \"With this routine, you will be able to achieve your goal of losing 15 pounds in 3 months.\",
+          \"days\": [
+            {
+                \"workoutName\": \"Monday Burner\",
+                \"itemsNeeded\": \"Weights and yoga mat\",
+                \"totalRounds\": 2,
+                \"totalExercises\": 5,
+                \"secondsPerExercise\": 20,
+                \"secondsPerBreak\": 10,
+                \"exercises\": [
+                    {
+                        \"name\": \"Jumping Jacks\",
+                        \"description\": \"Jump up and down, clapping your hands\"
+                    },
+                    {
+                        \"name\": \"Arm Curls\",
+                        \"description\": \"Use 10lb dumbbells to curl weights to your shoulders\"
+                    },
+                    {
+                        \"name\": \"Box Jumps\",
+                        \"description\": \"Jump on top of a box\"
+                    },
+                    {
+                        \"name\": \"Pushups\",
+                        \"description\": \"Do some push-ups, be sure to keep your back straight\"
+                    },
+                    {
+                        \"name\": \"Butterfly Stretch\",
+                        \"description\": \"Sit in butterfly position with your knees bent\"
+                    },
+                ]
+            },
+            {
+                \"workoutName\": \"Tough on Tuesday\",
+                \"itemsNeeded\": \"Jump Box and yoga mat\",
+                \"totalRounds\": 3,
+                \"totalExercises\": 2,
+                \"secondsPerExercise\": 50,
+                \"secondsPerBreak\": 15,
+                \"exercises\": [
+                    {
+                        \"name\": \"Jumping Jacks\",
+                        \"description\": \"Jump up and down, clapping your hands\"
+                    },
+                    {
+                        \"name\": \"Arm Curls\",
+                        \"description\": \"Use 10lb dumbbells to curl weights to your shoulders\"
+                    },
+                ]
+            },
+          ]
+        }\n";
+        $userSurveyPrompt .= "Please format your response in a similar manner but with data specific to survey responses, so the total number of `exercises` will be based on the tabata routine you come up and the names and descriptions should all be something you come up with as well. The only thing you need to keep consistent is the structure and keys of the json, all of the values should come from your response based on the survey. The total number of entries in `days` should be equal to `Number of days per week for workouts` from the survey.";
+
+        $apiKey = OPENAI_API_KEY;
+
+        // Set the endpoint URL
+        $endpoint = 'https://api.openai.com/v1/chat/completions';
+        
+        // Set the request headers
+        $headers = [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $apiKey
+        ];
+
+        $data = [
+            'model' => 'gpt-3.5-turbo',
+            'messages' => [
+                [
+                    'role' => 'system',
+                    'content' => $userSurveyPrompt,
+                ],
+                [
+                    'role' => 'user',
+                    'content' => 'Please only respond based on the data provided, and only respond in the format requested. There should be no other dialogue or extra explanation of anything, just the json format is all that is needed.'
+                ],
+            ],
+            // 'prompt' => $userSurveyPrompt . "\n\n" . 'Please only respond based on the data provided, and only respond in the format requested. There should be no other dialogue or extra explanation of anything, just the json format is all that is needed.',
+            // 'max_tokens' => 20000, // Adjust as needed
+            // 'temperature' => 0.7 // Adjust as needed
+        ];
+
+        // Initialize cURL session
+        $ch = curl_init();
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_URL, $endpoint);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        // Execute the request
+        $response = curl_exec($ch);
+
+        // Check for errors
+        if (curl_errno($ch)) {
+            // echo 'Error: ' . curl_error($ch);
+            $this->ajax([
+                'status' => 'error',
+                'response' => 'Error: ' . curl_error($ch)
+            ]);
+        }
+
+        // Close cURL session
+        curl_close($ch);
+
+        // Decode the response JSON
+        $result = json_decode($response, true);
+
+        $workouts = [];
+        $message = '';
+
+        if (!empty($result['choices'][0]['message']['content'])) {
+            $data = json_decode($result['choices'][0]['message']['content'], true);
+            $message = @$data['information'];
+            // echo '<pre>';
+            // print_r(json_decode($result['choices'][0]['message']['content'], true));
+            // echo '</pre>';
+            // exit;
+
+            foreach ($data['days'] as $day) {
+                
+                $workoutRoutine = new Routine();
+                $workoutRoutine->user = $this->user->id;
+                $workoutRoutine->name = @$day['workoutName'];
+                $workoutRoutine->items_needed = @$day['itemsNeeded'];
+                $workoutRoutine->sets = (int) @$day['totalExercises'] > 0 ? $day['totalExercises'] : count($day['exercises']);
+                $workoutRoutine->sets_time = (int) @$day['secondsPerExercise'] ? $day['secondsPerExercise'] : 20;
+                $workoutRoutine->break_time = (int) @$day['secondsPerBreak'] ? $day['secondsPerBreak'] : 10;
+                $workoutRoutine->rounds = (int) @$day['totalRounds'] ? $day['totalRounds'] : 3;
+                $workoutRoutine->create();
+
+                $workouts[] = [
+                    'id' => $workoutRoutine->id,
+                    'name' => $workoutRoutine->name,
+                ];
+        
+                // add 
+                foreach ($day['exercises'] as $exercise) {
+
+                    $exerciseItem = new Exercise();
+                    $exerciseItem->name = @$exercise['name'];
+                    $exerciseItem->description = @$exercise['description'];
+                    $exerciseItem->user = $this->user->id;
+                    $exerciseItem->create();
+
+                    $workoutRoutineExercise = new RoutineExercise();
+                    $workoutRoutineExercise->user = $this->user->id;
+                    $workoutRoutineExercise->routine = $workoutRoutine->id;
+                    $workoutRoutineExercise->exercise = $exerciseItem->id;
+                    $workoutRoutineExercise->create();
+                }
+        
+                // now heart the routine
+                $favorite = new Favorite();
+                $favorite->user = $this->user->id;
+                $favorite->routine = $workoutRoutine->id;
+                $favorite->create();
+            }
+        }
+
+        // dd($result['choices'], $result['choices'][0]['message']['content']);
+
+        // Output the generated text
+        // echo $result['choices'][0]['text'];
+        $this->ajax([
+            'status' => 'success',
+            'workouts' => $workouts,
+            'message' => $message,
+        ]);
+    }
+
+    public function ajaxGetItem()
+    {
+        $exercise = Exercise::findBy([
+            'id' => (int) @$_POST['item_id'], 
+            'user' => empty($this->user) ? 0 : $this->user->id
+        ], 1);
+
+        $this->ajax([
+            'status' => 'success',
+            'name' => $exercise->name,
+            'description' => $exercise->description,
+        ]);
     }
 
     private function updateSavedRoutine(int $routineId = 0, array $workoutItems = []): array

@@ -73,6 +73,12 @@ ajax_unheart_routine:
     controller: App\Controller\MainController
     method: ajaxUnHeartRoutine
     params: { routine_id: int }
+ajax_ai_generate_workout:
+    controller: App\Controller\MainController
+    method: ajaxAiGenerateWorkout
+ajax_get_item:
+    controller: App\Controller\MainController
+    method: ajaxGetItem
 account:
     controller: App\Controller\MainController
     method: account
